@@ -1,0 +1,593 @@
+% !TeX program = xelatex
+% =========================================================
+% 系统开发工具基础 - 实验报告模板
+% 编译使用工具：latexmk -xelatex -halt-on-error lab_report_template.tex
+% =========================================================
+
+\documentclass[UTF8,a4paper,11pt]{ctexart}
+
+% 页面与基础排版
+\usepackage{geometry}
+\geometry{left=2.35cm,right=2.35cm,top=2.25cm,bottom=2.25cm,headheight=22pt}
+\usepackage{setspace}
+\setstretch{1.28}
+\setlength{\parindent}{2em}
+\setlength{\parskip}{0.25em}
+
+% 颜色
+\usepackage{xcolor}
+\definecolor{MainBlue}{HTML}{0B5CAD}
+\definecolor{DeepBlue}{HTML}{173A5E}
+\definecolor{TextGray}{HTML}{5E6A75}
+\definecolor{CodeBG}{HTML}{F5F7F9}
+\definecolor{CodeFrame}{HTML}{CBD5DF}
+\definecolor{RuleBlue}{HTML}{8FB6D8}
+
+% 图片、表格、数学
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{placeins}
+
+% 代码
+\usepackage{listings}
+\lstdefinestyle{basecode}{
+  basicstyle=\ttfamily\small,
+  backgroundcolor=\color{CodeBG},
+  frame=single,
+  rulecolor=\color{CodeFrame},
+  framerule=0.5pt,
+  xleftmargin=0.4em,
+  xrightmargin=0.4em,
+  framexleftmargin=0.7em,
+  framexrightmargin=0.7em,
+  framesep=0.55em,
+  aboveskip=0.8em,
+  belowskip=0.8em,
+  breaklines=true,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false,
+  tabsize=4
+}
+\lstdefinestyle{terminal}{
+  style=basecode,
+  numbers=none
+}
+\lstdefinestyle{source}{
+  style=basecode,
+  numbers=left,
+  numberstyle=\scriptsize\color{TextGray},
+  numbersep=8pt
+}
+
+% 页眉页脚
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{TextGray}系统开发工具基础 · 第1周实验报告}
+\fancyfoot[C]{\small\color{TextGray}第 \thepage\ 页}
+\renewcommand{\headrulewidth}{0.45pt}
+\renewcommand{\footrulewidth}{0pt}
+\makeatletter
+\renewcommand{\headrule}{\hbox to\headwidth{\color{RuleBlue}\leaders\hrule height \headrulewidth\hfill}}
+\makeatother
+
+% 标题层级
+\ctexset{
+  section={
+    format=\Large\bfseries\color{DeepBlue},
+    number=\arabic{section},
+    aftername=\quad,
+    beforeskip=1.3em,
+    afterskip=0.75em
+  },
+  subsection={
+    format=\large\bfseries\color{MainBlue},
+    number=\thesection.\arabic{subsection},
+    aftername=\quad,
+    beforeskip=1.05em,
+    afterskip=0.55em
+  },
+  subsubsection={
+    format=\normalsize\bfseries\color{DeepBlue},
+    number=\thesubsection.\arabic{subsubsection},
+    aftername=\quad,
+    beforeskip=0.85em,
+    afterskip=0.35em
+  }
+}
+
+% 图题、表题
+\captionsetup{
+  font=small,
+  labelfont=bf,
+  labelsep=space,
+  justification=centering,
+  skip=6pt
+}
+\renewcommand{\figurename}{图}
+\renewcommand{\tablename}{表}
+
+% 超链接
+\usepackage[hidelinks]{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=DeepBlue,
+  urlcolor=MainBlue
+}
+
+% 自定义小组件
+\newcommand{\taskmeta}[1]{%
+  \noindent\textcolor{TextGray}{\textbf{主题：}#1}\par\vspace{0.55em}
+}
+
+\newcommand{\insertfigure}[3][0.88]{%
+  \begin{figure}[H]
+    \centering
+    \IfFileExists{#2}{%
+      \includegraphics[width=#1\textwidth]{#2}%
+    }{%
+      \fcolorbox{CodeFrame}{CodeBG}{%
+        \parbox[c][2.6cm][c]{0.86\textwidth}{\centering\color{TextGray}待补截图：\texttt{#2}}%
+      }%
+    }%
+    \caption{#3}
+  \end{figure}
+}
+
+% 文档标题信息
+\newcommand{\reporttitle}{系统开发工具基础实验报告}
+\newcommand{\reportsubtitle}{第1周：Shell、Git 与 LaTeX 基础实践}
+\newcommand{\studentname}{姬艺华}
+\newcommand{\studentid}{25020007046}
+\newcommand{\reportdate}{2026年8月24日}
+
+
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+\begin{document}
+
+
+% 封面
+
+\begin{titlepage}
+  \thispagestyle{empty}
+  \centering
+  \vspace*{1.8cm}
+
+  \IfFileExists{figures/ouc-logo.png}{%
+    \includegraphics[width=0.48\textwidth]{figures/ouc-logo.png}\\[1.1cm]
+  }
+
+  {\fontsize{25pt}{31pt}\selectfont\bfseries \reporttitle}\\[0.8cm]
+  {\Large\color{TextGray}\reportsubtitle}\\[1.8cm]
+
+  \rule{0.68\textwidth}{0.7pt}\\[1.25cm]
+
+  \begin{tabular}{>{\bfseries}r l}
+    姓名： & \studentname \\[0.65cm]
+    学号： & \studentid \\[0.65cm]
+    日期： & \reportdate
+  \end{tabular}
+
+  \vfill
+  {\small\color{TextGray}系统开发工具基础 · 实验报告}
+\end{titlepage}
+
+
+% 目录
+
+\thispagestyle{fancy}
+\tableofcontents
+\clearpage
+
+
+\section{课上习题}
+
+
+本模块记录上课实验四道例题操作基本过程，以及关键点。
+
+\subsection{第1题：含空格文件名的批量整理}
+\taskmeta{Shell 基础与文件系统}
+
+\subsubsection{任务说明}
+
+创建 q01，使用命令行完成目录与文件创建、隐藏文件查看、按扩展名复制文件、权限设置以及清单生成。
+
+\subsubsection{关键操作}
+
+使用mkdir -p创建input文件夹以及所包含的文件；使用printf“...”输入文件内容；使用touch创建文件；使用ls -laR查看input中所有文件：
+
+\begin{lstlisting}[style=terminal]
+mkdir -p input/docs input/tmp
+printf "alpha\nbeta\n" > "input/docs/notes one.txt"
+printf "hidden\n" > input/docs/.secret.txt
+touch input/tmp/empty.txt
+printf "start\nfinish\n" > input/run.log
+ls -laR input
+\end{lstlisting}
+
+随后查找所有 \texttt{.txt} 文件，并在复制时保留相对目录结构：
+
+创建work/25020007046文件夹；使用find找寻所有.txt类型的文件；使用-exec找到一个文件后执行cp复制操作；--parents保留原来的路径结构：
+
+\begin{lstlisting}[style=terminal]
+mkdir -p work/25020007046
+find input -type f -name "*.txt" \
+  -exec cp --parents "{}" work/25020007046 \;
+\end{lstlisting}
+
+设置目录与普通文件权限，并生成文件清单：
+
+使用chmod改变文件权限；-type d找目录，-type f找文件； \texttt{\%}P会保留相对路径；\texttt{\%}s显示文件大小：
+
+\begin{lstlisting}[style=terminal]
+find work/25020007046 -type d -exec chmod 750 {} \;
+find work/25020007046 -type f -exec chmod 640 {} \;
+find work/25020007046 -type f \
+  -printf "%P %s\n" > inventory.txt
+cat inventory.txt
+\end{lstlisting}
+
+\noindent{\small\textbf{关键点：}}
+\begin{itemize}[leftmargin=2em,itemsep=0.2em,topsep=0.3em]
+  \small
+  \item 文件名中包含空格时，要用双引号把完整路径括起来；查看隐藏文件要使用 \texttt{ls -a}。
+  \item \texttt{ls -laR input} 中，\texttt{-l} 是长格式，\texttt{-a} 显示隐藏文件，\texttt{-R} 递归查看子目录。
+  \item \texttt{find} 用来查找文件，\texttt{cp --parents} 可以在复制时保留原来的目录结构。
+  \item 权限数字由 可读\texttt{r=4}、可写\texttt{w=2}、可进入\texttt{x=1} 相加得到；本题目录使用 750，普通文件使用 640。
+\end{itemize}
+
+
+\subsubsection{实验结果}
+
+\insertfigure{figures/1.png}{q01 输入目录与隐藏文件检查结果}
+
+\insertfigure{figures/2.png}{q01 文件复制、权限与清单结果}
+
+\FloatBarrier
+
+% ---------------------------------------------------------
+
+\subsection{第2题：随机访问日志统计}
+\taskmeta{Shell 管道与文本处理}
+
+\subsubsection{任务说明}
+
+编写 \texttt{analyze.sh}，对 CSV 日志进行统计：输出 HTTP 5xx 数量最多的前 2 个 path，并计算全部数据行的平均延迟；同时处理输入文件不存在的异常情况。
+
+\subsubsection{脚本实现}
+
+\begin{lstlisting}[style=source,language=bash]
+#!/bin/bash
+
+if [ ! -f "$1" ]; then
+    echo "Error: file not found: $1" >&2
+    exit 1
+fi
+
+echo "Top 2 5xx paths:"
+awk -F',' 'NR > 1 && $4 >= 500 && $4 < 600 {
+    count[$3]++
+} END {
+    for (p in count) print count[p], p
+}' "$1" | sort -k1,1nr -k2,2 | head -2
+
+echo "Average latency_ms:"
+awk -F',' 'NR > 1 {
+    sum += $5; count++
+} END {
+    printf "%.2f\n", sum/count
+}' "$1"
+\end{lstlisting}
+
+\noindent{\small\textbf{关键点：}}
+\begin{itemize}[leftmargin=2em,itemsep=0.2em,topsep=0.3em]
+  \small
+  \item 使用if判断是否是文件，fi结束判断。
+  \item \texttt{\$1} 表示脚本接收的第一个参数；\texttt{>\&2} 把错误信息输出到 stderr，\texttt{exit 1} 表示脚本执行失败，可使用echo \texttt{\$?}查看错误输出。
+  \item \texttt{awk -F','} 用逗号分隔 CSV 字段，\texttt{NR>1} 用来跳过表头。
+  \item CSV 每一行有 5 列：\texttt{\$1=09:00:05 \$2=bob \$3=/api/orders \$4=502 \$5=260}。
+  \item count\texttt{[\$3]++}表示计数将路径计数一次。for(p in count)：把count里面的每一个 path 都拿出来；print count[p], p：打印path的次数和path。
+  \item 管道符 \texttt{|} 会把前一个命令的输出交给下一个命令，本题依次使用 \texttt{awk}、\texttt{sort} 和 \texttt{head} 完成统计与排序。sort -k1,1nr -k2,2表示依据第一列降序排序；head -2只取前两行。
+  \item 运行\texttt{./analyze.sh access.csv}时，\texttt{.analyze.sh}是运行脚本，\texttt{access.csv}是传给脚本的第一个参数；默认参数使用\texttt{"\$1"}。
+\end{itemize}
+
+\subsubsection{实验结果}
+
+\insertfigure{figures/3.png}{q02 正常日志统计结果}
+\insertfigure{figures/4.png}{q02 异常输入处理结果}
+
+\FloatBarrier
+
+% ---------------------------------------------------------
+
+\subsection{第3题：制造、解决并解释一次合并冲突}
+\taskmeta{Version Control and Git}
+
+\subsubsection{任务说明}
+
+从零初始化 Git 仓库，通过两个分支对同一行进行不同修改，主动制造合并冲突；随后按题目要求解决冲突，并检查最终提交历史。
+
+\subsubsection{关键过程}
+
+使用git init初始化仓库；使用git status查看仓库情况，可发现正在main分支上；使用git add将文件转入暂存区；使用git commit -m(提交说明)提交。
+
+\begin{lstlisting}[style=terminal]
+git init
+git status
+echo "mode=normal" > config.txt
+git add config.txt
+git commit -m "initial commit"
+\end{lstlisting}
+
+使用git switch -c feature-x创建两条新的分支；使用git switch可切换分支；在feature-a分支上将文件改为mode=safe，进行git add以及git commit；在分支feature-b上将文件改为mode=fast；返回main分支先合并feature-a，git merge feature-a；在合并feature-b出现合并冲突。
+
+\begin{lstlisting}[style=terminal]
+git switch -c feature-a
+echo "mode=safe" > config.txt
+git add config.txt
+git commit -m "set mode to safe"
+git switch main
+git switch -c feature-b
+git add config.txt
+git commit -m "set mode to fast"
+git switch main
+git merge feature-a
+git merge feature-b
+\end{lstlisting}
+
+冲突后文件内容变为：
+
+\begin{lstlisting}[style=terminal]
+<<<<<<< HEAD
+mode=safe
+=======
+mode=fast
+>>>>>>> feature-b
+\end{lstlisting}
+
+
+发生冲突后，将 \texttt{config.txt} 最终修改为：
+
+\begin{lstlisting}[style=terminal]
+cat > config.txt
+ mode=safe
+ note=reviewed
+git add config.txt
+git commit -m "merge feature-b and resolve conflict"
+\end{lstlisting}
+
+完成冲突解决后检查提交图：
+
+\begin{lstlisting}[style=terminal]
+git status
+git log --all --graph --decorate --oneline
+\end{lstlisting}
+
+\noindent{\small\textbf{关键点：}}
+\begin{itemize}[leftmargin=2em,itemsep=0.2em,topsep=0.3em]
+  \small
+  \item Git 的基本过程可以理解为“工作区 $\rightarrow$ 暂存区(add) $\rightarrow$ 提交历史(commit)”。
+  \item 两个分支修改同一位置时可能产生冲突，需要人工决定最终内容，并删除冲突标记。
+  \item \texttt{git status} 用来检查工作区状态，\texttt{git log --all --graph --decorate --oneline} 用来查看分支和提交历史。
+\end{itemize}
+
+\subsubsection{实验结果}
+
+\insertfigure{figures/5.png}{q03 合并冲突产生过程}
+\insertfigure{figures/6.png}{q03 冲突解决后的提交历史}
+
+\FloatBarrier
+
+% ---------------------------------------------------------
+
+\subsection{第4题：修复并构建一页技术说明}
+\taskmeta{LaTeX 文档编辑}
+
+\subsubsection{任务说明}
+
+在给定 LaTeX 模板中补充带编号与标签的公式、带标题与标签的 2 行 2 列表格，并在正文中完成交叉引用，最后从命令行构建 PDF。
+
+\subsubsection{核心实现}
+
+公式示例：
+
+\begin{equation}
+  y=ax+b
+  \label{eq:linear-demo}
+\end{equation}
+
+正文可使用 \verb|\eqref{eq:linear-demo}| 引用公式 \eqref{eq:linear-demo}。
+
+\begin{table}[H]
+  \centering
+  \caption{示例实验数据}
+  \label{tab:demo}
+  \begin{tabular}{|c|c|}
+    \hline
+    项目 & 数值 \\
+    \hline
+    A & 10 \\
+    \hline
+  \end{tabular}
+\end{table}
+
+正文可使用 \verb|\ref{tab:demo}| 引用表 \ref{tab:demo}。
+
+\subsubsection{构建与结果}
+
+\begin{lstlisting}[style=terminal]
+latexmk -xelatex -halt-on-error report.tex
+\end{lstlisting}
+
+\noindent{\small\textbf{关键点：}}
+\begin{itemize}[leftmargin=2em,itemsep=0.2em,topsep=0.3em]
+  \small
+  \item \texttt{label} 用来给公式或表格设置标签，\texttt{ref} 和 \texttt{eqref} 用来在正文中引用编号。
+  \item 表格中的 \texttt{caption} 用来生成标题和编号，\texttt{label} 一般放在它后面。
+  \item 中文文档使用 \texttt{ctexart}，再通过 \texttt{latexmk -xelatex} 完成编译和交叉引用更新。
+\end{itemize}
+
+\insertfigure{figures/7.png}{q04 公式、表格与交叉引用结果}
+\insertfigure{figures/8.png}{q04 命令行构建结果}
+
+\FloatBarrier
+
+% ---------------------------------------------------------
+
+% =========================================================
+\section{课下习题}
+% =========================================================
+
+本部分整理课后完成的 11 个 Shell 练习。为保持版面简洁，每个练习只保留题目名称、关键命令、简要说明和截图位置。
+
+\subsection{检查 Shell 环境}
+\begin{lstlisting}[style=terminal]
+echo $SHELL
+\end{lstlisting}
+输出显示当前使用 Bash，符合实验要求。
+\insertfigure{figures/g1.png}{检查 Shell 环境}
+
+\subsection{\texttt{ls -l} 与文件权限}
+\begin{lstlisting}[style=terminal]
+ls -l /
+\end{lstlisting}
+每行前 10 个字符表示文件类型和权限。第 1 位表示文件类型，后面 9 位依次表示所有者、用户组和其他用户的读、写、执行权限。
+\insertfigure{figures/g2.png}{使用 \texttt{ls -l} 查看文件权限}
+
+\subsection{Glob 匹配}
+\begin{lstlisting}[style=terminal]
+ls *.txt
+ls file?.txt
+ls {a,b,c}.txt
+\end{lstlisting}
+\texttt{*} 可以匹配任意数量字符，\texttt{?} 匹配一个字符，\texttt{\{a,b,c\}} 可以展开为多个文件名。
+\insertfigure{figures/g3.png}{Glob 文件名匹配结果}
+
+\subsection{Shell 引号}
+\begin{lstlisting}[style=terminal]
+echo '$name'
+echo "$name"
+printf '%s\n' $'Price: $100!\nHello'
+\end{lstlisting}
+单引号中的内容基本按原样输出；双引号允许变量展开；\texttt{\$'...'} 形式可以识别 \texttt{\textbackslash n} 等转义字符。
+\insertfigure{figures/g4.png}{Shell 不同引号的输出结果}
+
+\subsection{标准流重定向}
+\begin{lstlisting}[style=terminal]
+ls /nonexistent /tmp > stdout.txt 2> stderr.txt
+ls /nonexistent /tmp > all.txt 2>&1
+\end{lstlisting}
+\texttt{>} 重定向标准输出，\texttt{2>} 重定向标准错误，\texttt{2>\&1} 可以把两者写入同一个文件。
+\insertfigure{figures/g5(1).png}{标准输出与标准错误分开重定向}
+\insertfigure{figures/g5(2).png}{查看标准输出和标准错误文件}
+\insertfigure{figures/g5(3).png}{标准输出与标准错误合并重定向}
+
+\subsection{\texttt{||} 与退出状态}
+\begin{lstlisting}[style=terminal]
+[ -d /tmp/mydir ] || mkdir /tmp/mydir
+echo $?
+\end{lstlisting}
+只有当前面的判断失败，也就是目录不存在时，才会执行 \texttt{mkdir}。\texttt{\$?} 可以查看上一条命令的退出状态。
+\insertfigure{figures/g6.png}{\texttt{||} 与退出状态实验结果}
+
+\subsection{\texttt{cd} 为什么是内建命令}
+\begin{lstlisting}[style=terminal]
+type cd
+\end{lstlisting}
+结果显示 \texttt{cd} 是 Shell 内建命令。因为子进程不能改变父进程 Shell 的当前目录，所以 \texttt{cd} 必须由 Shell 自己执行。
+\insertfigure{figures/g7.png}{查看 \texttt{cd} 的命令类型}
+
+\subsection{判断文件是否存在}
+\begin{lstlisting}[style=source,language=bash]
+#!/bin/bash
+if [ -f "$1" ]; then
+    echo "File exists."
+else
+    echo "File does not exist."
+fi
+\end{lstlisting}
+脚本通过 \texttt{\$1} 获取文件名，并使用 \texttt{-f} 判断文件是否存在。
+\insertfigure{figures/g8.png}{脚本判断文件是否存在}
+
+\subsection{文件执行权限}
+\begin{lstlisting}[style=terminal]
+chmod +x check.sh
+./check.sh somefile
+\end{lstlisting}
+没有执行权限时直接运行脚本会失败；添加 \texttt{x} 权限后，可以使用 \texttt{./check.sh} 直接执行。
+\insertfigure{figures/g9.png}{脚本执行权限实验结果}
+
+\subsection{\texttt{set -x}}
+\begin{lstlisting}[style=terminal]
+set -x
+\end{lstlisting}
+加入 \texttt{set -x} 后，运行脚本时会显示实际执行的命令，可用于调试 Shell 脚本。
+\insertfigure{figures/g9.png}{使用 \texttt{set -x} 调试脚本}
+
+\subsection{\texttt{--} 的作用}
+\begin{lstlisting}[style=terminal]
+touch -- -myfile
+rm ./-myfile
+\end{lstlisting}
+\texttt{--} 表示后面的内容不再作为命令选项处理。对于以 \texttt{-} 开头的文件名，也可以使用 \texttt{./文件名} 的方式操作。
+\insertfigure{figures/g10.png}{使用 \texttt{--} 处理特殊文件名}
+
+\FloatBarrier
+
+% =========================================================
+\section{Git 与作业提交}
+% =========================================================
+
+
+
+\subsection{仓库内容整理}
+
+\begin{lstlisting}[style=terminal]
+8.24/
+|-- q01/
+|-- q02/
+|-- q03/
+|-- q04/
+`-- lab_report/
+    |-- figures/
+    |-- lab_report.tex
+    `-- lab_report.pdf
+\end{lstlisting}
+
+\subsection{GitHub / Gitee 提交记录}
+
+\noindent\textbf{仓库地址：}\texttt{https://github.com/haru-senya/8.24.git}
+
+\subsection{commit 记录截图、仓库页面截图}
+\insertfigure{figures/git-commits.png}{Git commit 记录}
+
+\insertfigure{figures/git-repo.png}{GitHub / Gitee 仓库页面}
+
+\FloatBarrier
+
+% =========================================================
+\section{问题以及经验}
+% =========================================================
+
+\subsection{实验中遇到的问题}
+
+\textbf{虚拟机文件迁移：}q01 与 q02 最初保存在 Ubuntu 虚拟机中，VMware 直接拖拽失败后，改用共享文件夹将实验目录复制到 Windows 主机中。
+
+\textbf{LaTeX 中文编译：}使用 pdfLaTeX 编译中文时出现问题，因此改用 \texttt{ctexart} 文档类和 XeLaTeX；配置好 Perl 后，LaTeX Workshop 可以通过 \texttt{latexmk} 自动构建和预览。
+
+\subsection{实验经验}
+
+本次实验让我更熟悉了 Shell、Git 和 LaTeX 的基本使用。Shell 部分需要注意参数、引号、权限和重定向等细节；Git 可通过“工作区--暂存区--提交历史”来理解；LaTeX 则适合用统一规则管理文档结构和排版。
+
+\subsection{总结}
+
+通过课上题和课下练习，我完成了文件操作、文本处理、Git 冲突解决和 LaTeX 文档构建等任务，也对开发工具的基本工作方式有了初步认识。后续还需要在实际使用中继续熟悉这些工具。
+
+\end{document}
