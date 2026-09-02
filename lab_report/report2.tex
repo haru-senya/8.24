@@ -1,0 +1,497 @@
+% !TeX program = xelatex
+% =========================================================
+% 系统开发工具基础 - 实验报告模板
+% 编译使用工具：latexmk -xelatex -halt-on-error lab_report_template.tex
+% =========================================================
+
+\documentclass[UTF8,a4paper,11pt]{ctexart}
+
+% 页面与基础排版
+\usepackage{geometry}
+\geometry{left=2.35cm,right=2.35cm,top=2.25cm,bottom=2.25cm,headheight=22pt}
+\usepackage{setspace}
+\setstretch{1.28}
+\setlength{\parindent}{2em}
+\setlength{\parskip}{0.25em}
+
+% 颜色
+\usepackage{xcolor}
+\definecolor{MainBlue}{HTML}{0B5CAD}
+\definecolor{DeepBlue}{HTML}{173A5E}
+\definecolor{TextGray}{HTML}{5E6A75}
+\definecolor{CodeBG}{HTML}{F5F7F9}
+\definecolor{CodeFrame}{HTML}{CBD5DF}
+\definecolor{RuleBlue}{HTML}{8FB6D8}
+
+% 图片、表格、数学
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{placeins}
+
+% 代码
+\usepackage{listings}
+\lstdefinestyle{basecode}{
+  basicstyle=\ttfamily\small,
+  backgroundcolor=\color{CodeBG},
+  frame=single,
+  rulecolor=\color{CodeFrame},
+  framerule=0.5pt,
+  xleftmargin=0.4em,
+  xrightmargin=0.4em,
+  framexleftmargin=0.7em,
+  framexrightmargin=0.7em,
+  framesep=0.55em,
+  aboveskip=0.8em,
+  belowskip=0.8em,
+  breaklines=true,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false,
+  tabsize=4
+}
+\lstdefinestyle{terminal}{
+  style=basecode,
+  numbers=none
+}
+\lstdefinestyle{source}{
+  style=basecode,
+  numbers=left,
+  numberstyle=\scriptsize\color{TextGray},
+  numbersep=8pt
+}
+
+% 页眉页脚
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{TextGray}系统开发工具基础 · 第2周实验报告}
+\fancyfoot[C]{\small\color{TextGray}第 \thepage\ 页}
+\renewcommand{\headrulewidth}{0.45pt}
+\renewcommand{\footrulewidth}{0pt}
+\makeatletter
+\renewcommand{\headrule}{\hbox to\headwidth{\color{RuleBlue}\leaders\hrule height \headrulewidth\hfill}}
+\makeatother
+
+% 标题层级
+\ctexset{
+  section={
+    format=\Large\bfseries\color{DeepBlue},
+    number=\arabic{section},
+    aftername=\quad,
+    beforeskip=1.3em,
+    afterskip=0.75em
+  },
+  subsection={
+    format=\large\bfseries\color{MainBlue},
+    number=\thesection.\arabic{subsection},
+    aftername=\quad,
+    beforeskip=1.05em,
+    afterskip=0.55em
+  },
+  subsubsection={
+    format=\normalsize\bfseries\color{DeepBlue},
+    number=\thesubsection.\arabic{subsubsection},
+    aftername=\quad,
+    beforeskip=0.85em,
+    afterskip=0.35em
+  }
+}
+
+% 图题、表题
+\captionsetup{
+  font=small,
+  labelfont=bf,
+  labelsep=space,
+  justification=centering,
+  skip=6pt
+}
+\renewcommand{\figurename}{图}
+\renewcommand{\tablename}{表}
+
+% 超链接
+\usepackage[hidelinks]{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=DeepBlue,
+  urlcolor=MainBlue
+}
+
+% 自定义小组件
+\newcommand{\taskmeta}[1]{%
+  \noindent\textcolor{TextGray}{\textbf{主题：}#1}\par\vspace{0.55em}
+}
+
+\newcommand{\insertfigure}[3][0.88]{%
+  \begin{figure}[H]
+    \centering
+    \IfFileExists{#2}{%
+      \includegraphics[width=#1\textwidth]{#2}%
+    }{%
+      \fcolorbox{CodeFrame}{CodeBG}{%
+        \parbox[c][2.6cm][c]{0.86\textwidth}{\centering\color{TextGray}待补截图：\texttt{#2}}%
+      }%
+    }%
+    \caption{#3}
+  \end{figure}
+}
+
+% 文档标题信息
+\newcommand{\reporttitle}{系统开发工具基础实验报告}
+\newcommand{\reportsubtitle}{第2周：命令行环境；开发环境与工具；DebuggingandProfiling}
+\newcommand{\studentname}{姬艺华}
+\newcommand{\studentid}{25020007046}
+\newcommand{\reportdate}{2026年8月31日}
+
+
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+\begin{document}
+
+% 封面
+\begin{titlepage}
+  \thispagestyle{empty}
+  \centering
+  \vspace*{1.8cm}
+
+  \IfFileExists{figures/ouc-logo.png}{%
+    \includegraphics[width=0.48\textwidth]{figures/ouc-logo.png}\\[1.1cm]
+  }
+
+  {\fontsize{25pt}{31pt}\selectfont\bfseries \reporttitle}\\[0.8cm]
+  {\Large\color{TextGray}\reportsubtitle}\\[1.8cm]
+
+  \rule{0.68\textwidth}{0.7pt}\\[1.25cm]
+
+  \begin{tabular}{>{\bfseries}r l}
+    姓名： & \studentname \\[0.65cm]
+    学号： & \studentid \\[0.65cm]
+    日期： & \reportdate
+  \end{tabular}
+
+  \vfill
+  {\small\color{TextGray}系统开发工具基础 · 实验报告}
+\end{titlepage}
+
+
+\thispagestyle{fancy}
+\tableofcontents
+\clearpage
+
+
+% ==========================
+% 正文开始
+% ==========================
+
+\section{课上习题}
+
+本模块记录上课实验四道例题操作基本过程，以及关键点。
+
+%============================================================
+
+\subsection{第5题：控制一个可清理的后台任务}
+
+\taskmeta{命令行环境：进程、信号与任务控制}
+
+\subsubsection{任务说明}
+
+运行worker.sh脚本，重定向标准输出与错误输出；\texttt{Ctrl+Z}挂起进程，\texttt{bg}放到后台；通过\texttt{jobs -p}获取PID，发送SIGTERM终止任务，等待进程结束，确认\texttt{cleanup.log}输出\texttt{CLEAN\_EXIT}。
+
+\subsubsection{关键操作}
+
+将脚本执行，并将stdout和stderr写入stdout.log、stderr.log；将任务挂起，并让它在后台继续运行；使用jobs确认状态。
+
+\begin{lstlisting}[style=terminal]
+./worker.sh > stdout.log 2> stderr.log
+(ctrl+z)
+bg
+jobs
+\end{lstlisting}
+
+使用jobs-p获取PID；发送SIGTERM结束任务；等待任务结束后，确认\texttt{cleanup.log}中出现CLEAN\texttt{\_}EXIT。
+
+\begin{lstlisting}[style=terminal]
+pid=$(jobs -p)
+echo "$pid"
+kill -TERM "$pid"
+wait "$pid"
+cat cleanup.log
+\end{lstlisting}
+
+\noindent{\small\textbf{关键点：}}
+
+\begin{itemize}[leftmargin=2em,itemsep=0.2em,topsep=0.3em]
+    \small
+    \item \texttt{Ctrl+Z} 暂停正在运行的进程；\texttt{bg} 将挂起的任务放到后台继续运行；\texttt{jobs} 查看当前终端的后台任务。
+    \item PID 代表进程编号，用来定位要操作的进程；\texttt{jobs -p} 获取后台任务对应的PID。
+    \item \texttt{pid=\$(jobs -p)}：\texttt{\$()} 执行括号内命令，将命令输出保存到pid变量。
+    \item \texttt{kill -TERM "\$pid"}：向对应PID进程发送SIGTERM信号，允许程序执行清理逻辑；不要使用\texttt{kill -9}，强制杀死不会执行清理代码。
+    \item \texttt{wait "\$pid"}：等待该进程完全结束，进程退出完成后再读取日志。
+    \item \texttt{cat cleanup.log} 查看输出日志，出现\texttt{CLEAN\_EXIT}代表脚本完成清理后退出。
+    \item \texttt{Ctrl+Z}、\texttt{bg}、\texttt{jobs} 仅交互式终端可用，写到shell脚本中无法正常获取后台作业
+\end{itemize}
+
+
+\subsubsection{实验结果}
+
+\insertfigure{figures/2.1.png}{确认后台运行情况}
+
+\insertfigure{figures/2.2.png}{确认结束任务以及\texttt{cleanup.log}文件内容}
+
+\FloatBarrier
+
+
+%====================================================================
+
+\subsection{第6题：语义重构与本地开发反馈}
+
+\taskmeta{开发环境与工具}
+
+\subsubsection{任务说明}
+
+借助编辑器语言服务器完成代码语义重构；使用ruff做代码静态检查，pytest执行单元测试，保证修改后代码功能正常。
+
+\subsubsection{关键操作}
+
+检查环境：
+
+\begin{lstlisting}[style=terminal]
+python --version
+python --version
+ruff --version
+\end{lstlisting}
+
+在文件app.py中加入未使用过的import os，随后用ruff发现并删除；最后运行保证通过。
+
+\begin{lstlisting}[style=terminal]
+ruff check .
+pytest
+\end{lstlisting}
+
+
+\noindent{\small\textbf{关键点：}}
+
+\begin{itemize}[leftmargin=2em,itemsep=0.2em,topsep=0.3em]
+    \small
+    \item 语言服务器：提供跳转定义、查找引用等代码分析功能。
+    \item 重命名符号：语义层面修改名称，同步更新全部调用位置，不是简单文本替换。
+    \item ruff：静态检查工具，检测未使用导入、格式类代码问题。
+    \item pytest单元测试：\texttt{test\_}开头函数作为测试用例，用\texttt{assert}校验结果。
+    \item 修改代码后依次运行ruff、pytest，确认代码规范与功能没有问题。
+\end{itemize}
+
+
+\subsubsection{实验结果}
+
+分别演示跳转到定义和查找引用：
+
+\insertfigure{figures/2.3.png}{环境检查，程序试运行}
+\insertfigure{figures/2.4.png}{右键显示信息}
+\insertfigure{figures/2.5.png}{转到定义}
+\insertfigure{figures/2.6.png}{右键显示信息}
+\insertfigure{figures/2.7.png}{查找所有引用}
+
+使用“查找所有引用”后，编辑器能够找到 \texttt{app.py} 和 \texttt{test\_math\_utils.py} 中对 \texttt{total\_price} 的引用。
+
+鼠标放在total\_price 重命名符号，输入calculate\_total：
+
+\insertfigure{figures/2.8.png}{}
+\insertfigure{figures/2.9.png}{}
+\insertfigure{figures/2.10.png}{}
+
+\insertfigure{figures/2.11.png}{最后运行ruff和pytest均通过}
+
+
+
+%===============================================================
+
+\subsection{第7题：用调试器定位归并排序缺陷}
+
+\taskmeta{Debugging}
+
+\subsubsection{任务说明}
+
+调试存在缺陷的归并排序代码，设置断点观察变量定位下标错误，完成最小修复，编写pytest用例验证修复结果。
+
+\subsubsection{关键操作}
+
+先运行输出查看，发现结果不正确；使用IDEdebugger调试，在while i \texttt{ < }len(left) and j \texttt{ < }len(right);处；设置监视变量；使用F10单步执行。
+
+观察 i、j、left[i] 和 right[j]；当 left=[1,3]、right=[1,4]、i=1、j=0 时，left[i]=3，right[j]=1，程序进入 else 分支。此时应将 right[j] 即 1 加入 result，但原代码使用了 right[i]，实际加入 right[1]=4，导致归并结果错误。
+
+此时需要修复，改为：
+
+\begin{lstlisting}[style=source]
+def merge(left, right):
+    result = []
+    i = j = 0
+    while i < len(left) and j < len(right):
+        if left[i] <= right[j]:
+            result.append(left[i]); i += 1
+        else:
+            result.append(right[j]); j += 1 # 此处存在缺陷
+    return result + left[i:] + right[j:]
+def merge_sort(a):
+    if len(a) <= 1: return a
+    m = len(a) // 2
+    return merge(merge_sort(a[:m]), merge_sort(a[m:]))
+
+print(merge_sort([3, 1, 4, 1, 5, 9, 2, 6]))
+\end{lstlisting}
+
+使用pytest增加两个测试：给定输入和含重复元素的列表；保证测试通过。
+
+\begin{lstlisting}[style=source]
+#test_merge_sort.py
+from merge_sort import merge_sort
+def test_given_input():
+    assert merge_sort([3, 1, 4, 1, 5, 9, 2, 6]) == [1, 1, 2, 3, 4, 5, 6, 9]
+def test_duplicate_elements():
+    assert merge_sort([2, 2, 1, 3, 1]) == [1, 1, 2, 2, 3]
+\end{lstlisting}
+
+\noindent{\small\textbf{解释代码：}}
+
+\begin{itemize}[leftmargin=2em,itemsep=0.2em,topsep=0.3em]
+    \small
+    \item \texttt{from merge\_sort import merge\_sort}：导入归并排序函数，测试文件才能调用它。
+    \item 函数名以 \texttt{test\_} 开头，pytest 才会识别为测试用例。
+    \item \texttt{assert 实际结果 == 预期结果}：两边相等测试通过，不相等则报错。
+    \item \texttt{test\_given\_input}：题目给定输入；\texttt{test\_duplicate\_elements}：包含重复元素的列表。
+\end{itemize}
+
+
+\noindent{\small\textbf{关键点：}}
+
+\begin{itemize}[leftmargin=2em,itemsep=0.2em,topsep=0.3em]
+    \small
+    \item 断点：调试器在此暂停，查看变量实时运行值。
+    \item i、j分别对应左右子数组下标，二者不能混用。
+    \item 原始bug：错误写\texttt{right[i]}，正确写法为\texttt{right[j]}。
+\end{itemize}
+
+
+\subsubsection{实验结果}
+
+\insertfigure{figures/2.12.png}{设置断点}
+
+\insertfigure{figures/2.13.png}{完成最小修复}
+
+\insertfigure{figures/2.14.png}{测试通过}
+
+
+
+%========================================================
+
+\subsection{第8题：先测量，再优化慢速词频程序}
+
+\taskmeta{Profiling}
+
+\subsubsection{任务说明}
+
+使用time、cProfile对词频统计程序做性能分析；找到性能瓶颈进行代码优化，记录耗时，计算优化前后的加速比。
+
+\subsubsection{关键操作}
+
+生成words.txt使用time运行原程序2次并记录耗时:
+
+\begin{lstlisting}[style=terminal] 
+python generate_words.py
+ls
+python wordfreq.py
+time python wordfreq.py
+time python wordfreq.py
+\end{lstlisting}
+
+使用cProfile-s cumulative 运行一次，找出主要耗时位置；优化程序；将list改为“去重”的set：
+
+\begin{lstlisting}[style=terminal] 
+python -m cProfile -s cumulative wordfreq.py
+\end{lstlisting}
+
+优化后 wordfreq\texttt{.}py:
+
+\begin{lstlisting}[style=source]
+words = open("words.txt", encoding="utf-8").read().split()
+unique = set()
+
+for word in words:
+    unique.add(word)
+
+print("count=", len(unique))
+\end{lstlisting}
+
+\noindent{\small\textbf{关键点：}}
+
+\begin{itemize}[leftmargin=2em,itemsep=0.2em,topsep=0.3em]
+    \small
+    \item \texttt{time}：用来测量程序实际运行耗时。
+    \item cProfile性能剖析工具，按累计耗时定位性能瓶颈。
+    \item list成员查找效率低，改用set集合实现去重提升速度。
+    \item 优化不能改变程序输出结果；多次运行记录耗时，计算加速比。
+\end{itemize}
+
+
+\subsubsection{实验结果}
+
+\noindent{\small\textbf{优化前后耗时对比：}}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{l|c|c|c}
+\toprule
+ & 第1次 & 第2次 & 中位数 \\
+\midrule
+优化前（list） & 0.205s & 0.191s & 0.198s \\
+优化后（set） & 0.131s & 0.106s & 0.1185s \\
+\bottomrule
+\end{tabular}
+\caption{优化前后运行耗时对比}
+\end{table}
+
+\noindent{\small\textbf{加速比计算：}}
+
+\begin{equation}
+\text{加速比} = \frac{\text{优化前中位数}}{\text{优化后中位数}} = \frac{0.198}{0.1185} \approx 1.67
+\end{equation}
+
+将 list 替换为 set 后，去重操作的时间复杂度降低，程序运行速度提升约 \textbf{1.67 倍}。实际耗时还受文件读取、Python 启动等因素影响，但集合在大数据量下扩展性更好。
+
+\insertfigure{figures/2.15.png}{原程序运行}
+
+\insertfigure{figures/2.16.png}{使用time运行原程序}
+
+\insertfigure{figures/2.17.png}{找出主要耗时位置}
+
+\insertfigure{figures/2.18.png}{再次使用time计算运行时间}
+
+\section{问题与总结}
+
+\subsection{遇到的问题}
+
+\begin{itemize}[leftmargin=2em]
+  \item \textbf{后台任务堆积：} 多次运行脚本并按 \texttt{Ctrl+Z} 挂起，终端里同时存在多个 Stopped 和 Running 任务。用 \texttt{jobs} 查看任务编号，通过 \texttt{bg} 恢复暂停任务，再用 \texttt{kill -TERM \%1}、\texttt{\%2}、\texttt{\%3} 按作业号逐个终止。
+  \item \textbf{不理解 \texttt{kill -TERM} 写法：} 疑惑为什么不直接写 SIGTERM。查阅后理解：\texttt{kill} 向进程发信号，\texttt{-TERM} 是 \texttt{SIGTERM} 的简写，\texttt{\$pid} 是目标进程编号。
+  \item \textbf{手动重命名容易遗漏引用：} 第6题把 \texttt{total\_price} 改成 \texttt{calculate\_total}，手动改多个文件容易漏。用 VS Code 的「重命名符号」做语义级修改，定义和所有引用同步更新，理解了语义重构和普通文本替换的区别。
+  \item \textbf{归并排序下标用混：} 程序能运行但排序结果错误。调试器观察 \texttt{i}、\texttt{j}、\texttt{left[i]}、\texttt{right[j]}，发现 else 分支错写 \texttt{right[i]}，应为 \texttt{right[j]}，对应的自增也应是 \texttt{j += 1}。修改后输出正确并通过测试。
+  \item \textbf{pytest 找不到测试用例：} 运行 pytest 显示 \texttt{collected 0 items}。检查发现测试文件命名不符合 \texttt{test\_xxx.py} 规范，或测试函数没有以 \texttt{test\_} 开头。修正命名后 pytest 正常执行。
+  \item \textbf{set 没有 append 方法：} 第8题把 unique = [] 改 unique = set()，但仍写 unique.append(word)，报 \texttt{AttributeError: 'set' object has no attribute 'append'}。改\texttt{unique.add(word)}，修改后运行正常，\texttt{count=1000} 不变。
+  \item \textbf{性能优化效果验证：} 用 \texttt{time} 测优化前后耗时，cProfile 定位瓶颈。列表换集合降低了去重的时间复杂度，性能有提升；实际耗时还受文件读取、Python 启动等因素影响，但集合在大数据量下扩展性更好。
+\end{itemize}
+
+
+\subsection{实验总结}
+
+通过本次实验，我进一步熟悉了 Linux 环境下的进程控制、Python 开发工具使用、程序调试以及性能优化方法。在后台任务管理实验中，学习了使用 Ctrl-Z、bg、jobs 以及 SIGTERM 信号对进程进行控制，理解了进程状态变化和信号通信机制。在 Python 工具链实验中，掌握了使用语言服务器完成代码跳转、引用查找和符号重命名，认识到语义重构相比普通文本修改更加安全可靠。
+
+通过归并排序调试实验，我学会了使用调试器观察程序运行状态，通过断点和变量变化定位逻辑错误，而不是只依靠运行结果判断问题。在性能优化实验中，学习了使用 time 和 cProfile 对程序进行性能分析，并通过将 list 结构替换为 set 进行去重优化，理解了数据结构选择对程序效率的影响。
+
+总体来说，本次实验不仅提升了对 Linux 工具、Git、Python 开发环境以及调试工具的使用能力，也让我认识到编写程序不仅需要实现功能，还需要关注代码质量、可维护性和运行效率。在后续学习中，需要继续加强对开发工具和工程化实践的熟练使用。
+
+
+\end{document}
