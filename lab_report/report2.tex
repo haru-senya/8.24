@@ -470,6 +470,226 @@ print("count=", len(unique))
 
 \insertfigure{figures/2.18.png}{再次使用time计算运行时间}
 
+
+% =========================================================
+\section{课下习题}
+% =========================================================
+
+本部分完成 Vim 模式、VimGolf、IDE 语言服务器和编辑器扩展相关练习，主要熟悉文本编辑效率和开发环境配置。
+
+\subsection{启用 Vim 模式}
+
+在 VS Code 中安装 Vim 扩展，并在 Git Bash 中启用 Vi 编辑模式。
+
+\begin{lstlisting}[style=terminal]
+set -o vi
+set -o | grep vi
+\end{lstlisting}
+
+在 VS Code 中可以使用 Vim 的普通模式和插入模式，例如按 \texttt{i} 进入插入模式，按 \texttt{Esc} 返回普通模式，并使用 \texttt{h、j、k、l} 移动光标。
+
+\insertfigure{figures/vim1.png}{在 Shell 中启用 Vim 模式}
+
+\subsection{完成 VimGolf 挑战}
+
+选择了一道交换 Python 函数参数并删除注释的 VimGolf 练习。主要使用以下 Vim 命令：
+
+\begin{lstlisting}[style=terminal]
+ggdd
+:s/width, height/height, width/
+:%s/ *#.*//
+\end{lstlisting}
+
+其中，\texttt{ggdd} 用于删除第一行，\texttt{s} 用于替换当前行内容，\texttt{\%s} 用于在整个文件中进行替换。最终成功将函数参数交换，并删除全部注释。
+
+\insertfigure{figures/vimgolf1.png}{完成 VimGolf 挑战}
+\insertfigure{figures/vimgolf2.png}{完成 VimGolf 挑战}
+
+\subsection{配置 IDE 扩展和语言服务器}
+
+使用已有的 Python 项目进行测试，在 VS Code 中启用 Python 和 Pylance 扩展，并对函数进行跳转到定义测试。
+
+在 \texttt{app.py} 中将光标放在 \texttt{calculate\_total} 上，使用 \texttt{F12} 后可以正确跳转到 \texttt{math\_utils.py} 中对应的函数定义，说明语言服务器工作正常。
+
+\begin{lstlisting}[style=source,language=Python]
+from math_utils import calculate_total
+
+print(calculate_total(12.5, 4))
+\end{lstlisting}
+
+\insertfigure{figures/lsp.png}{使用语言服务器跳转到函数定义}
+
+\subsection{安装新的 IDE 扩展}
+
+浏览 VS Code 扩展列表后安装了 Error Lens 扩展。为了测试扩展功能，在 Python 文件中临时加入一个未定义变量：
+
+\begin{lstlisting}[style=source,language=Python]
+print(abc)
+\end{lstlisting}
+
+Error Lens 可以直接在代码旁显示“未定义 abc”的错误信息，使代码问题更加直观。测试完成后删除该错误代码。
+
+\insertfigure{figures/errorlens.png}{Error Lens 显示代码错误}
+
+\subsection{\texttt{--} 参数作用}
+
+\begin{lstlisting}[style=terminal]
+touch -- -myfile
+rm ./-myfile
+\end{lstlisting}
+
+使用 \texttt{--} 创建以短横线开头的文件名，避免被命令解析为参数选项。删除该文件时使用 \texttt{./}-myfile指定路径，避免\texttt{rm} 将其识别为选项。
+
+\insertfigure{figures/t1.png}{使用 \texttt{--} 创建和删除特殊文件名}
+
+
+\subsection{\texttt{ls} 参数组合}
+
+\begin{lstlisting}[style=terminal]
+ls -laht --color=auto
+\end{lstlisting}
+
+该命令实现显示所有文件（包括隐藏文件）、显示详细信息、以易读格式显示文件大小、按照修改时间排序，并开启颜色显示。
+
+\insertfigure{figures/t2.png}{使用 \texttt{ls} 参数查看文件信息}
+
+
+\subsection{进程替换}
+
+\begin{lstlisting}[style=terminal]
+diff <(printenv | sort) <(export | sort)
+\end{lstlisting}
+
+使用进程替换将命令输出作为临时文件交给 \texttt{diff} 比较。实验发现 \texttt{printenv} 和 \texttt{export} 的输出格式不同，其中 \texttt{export} 会显示 Shell 变量声明信息。
+
+\insertfigure{figures/t3.png}{使用进程替换比较命令输出}
+
+
+\subsection{\texttt{marco} 与 \texttt{polo} 函数}
+
+\begin{lstlisting}[style=source,language=bash]
+marco() {
+    MARCO_DIR="$PWD"
+}
+
+polo() {
+    cd "$MARCO_DIR"
+}
+\end{lstlisting}
+
+通过 Shell 函数保存当前工作目录。执行 \texttt{marco} 后切换到其他目录，再执行 \texttt{polo} 可以返回之前保存的位置。
+
+\insertfigure{figures/t4.png}{测试 \texttt{marco} 和 \texttt{polo} 函数}
+
+
+\subsection{循环执行程序直到失败}
+
+\begin{lstlisting}[style=source,language=bash]
+while true; do
+    count=$((count + 1))
+
+    ./random.sh > stdout.log 2> stderr.log
+
+    if [[ $? -ne 0 ]]; then
+        echo "Failed after $count runs"
+        cat stdout.log
+        cat stderr.log
+        break
+    fi
+done
+\end{lstlisting}
+
+编写脚本循环运行随机失败程序，分别保存标准输出和标准错误。当程序返回非零状态时停止运行，输出失败次数和错误信息。本次实验中程序运行 105 次后失败，成功捕获错误输出。
+
+\insertfigure{figures/t5.png}{循环执行程序直到失败的结果}
+
+\subsection{目录文件数量统计脚本}
+
+编写 Shell 脚本 \texttt{check\_dir.sh}，通过输入目录路径判断目录是否存在，并统计其中普通文件数量。
+
+\begin{lstlisting}[style=source,language=bash]
+#!/bin/bash
+
+if [ -d "$1" ]; then
+    echo "Directory exists."
+
+    count=$(find "$1" -type f | wc -l)
+
+    echo "File count: $count"
+else
+    echo "Directory does not exist."
+fi
+\end{lstlisting}
+
+其中，\texttt{\$1} 表示脚本输入的第一个参数，\texttt{-d} 用于判断目录是否存在，\texttt{find} 命令用于查找普通文件，\texttt{wc -l} 用于统计文件数量。
+
+测试结果显示，当输入存在目录时，脚本能够输出文件数量；输入不存在目录时，能够正确提示目录不存在。
+
+\insertfigure{figures/t6.png}{目录文件数量统计脚本运行结果}
+
+\subsection{文本文件单词数量统计脚本}
+
+编写 Shell 脚本 \texttt{count\_words.sh}，实现输入文本文件路径并统计文件中单词数量的功能。
+
+\begin{lstlisting}[style=source,language=bash]
+#!/bin/bash
+
+file=$1
+
+if [ -f "$file" ]; then
+    echo "File: $file"
+
+    count=$(wc -w < "$file")
+
+    echo "Word count: $count"
+else
+    echo "File does not exist."
+fi
+\end{lstlisting}
+
+脚本通过 \texttt{\$1} 获取输入文件路径，使用 \texttt{-f} 判断文件是否存在，并利用 \texttt{wc -w} 命令统计文件中的单词数量。
+
+测试结果表明，当输入有效文件时，脚本能够正确输出单词数量；当输入不存在的文件时，能够给出错误提示。
+
+\insertfigure{figures/t7.png}{统计文本文件单词数量脚本运行结果}
+
+
+\FloatBarrier
+
+
+\section{Git 与作业提交}
+
+\subsection{仓库内容整理}
+
+\begin{lstlisting}[style=terminal]
+8.24/
+|-- q01/
+|-- q02/
+|-- q03/
+|-- q04/
+|-- q05/
+|-- q06/
+|-- q07/
+|-- q08/
+`-- lab_report/
+    |-- figures/
+    |-- report.tex
+    |-- report.pdf
+    |-- report2.tex
+    `-- report2.pdf
+\end{lstlisting}
+
+\subsection{GitHub / Gitee 提交记录}
+
+\noindent\textbf{仓库地址：}\texttt{https://github.com/haru-senya/8.24.git}
+
+\subsection{commit 记录截图、仓库页面截图}
+\insertfigure{figures/git-commits2.png}{Git commit 记录}
+
+\insertfigure{figures/git-repo2.png}{GitHub / Gitee 仓库页面}
+
+\FloatBarrier
+
 \section{问题与总结}
 
 \subsection{遇到的问题}
