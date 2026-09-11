@@ -1,0 +1,794 @@
+% !TeX program = xelatex
+% =========================================================
+% 系统开发工具基础 - 实验报告模板
+% 编译使用工具：latexmk -xelatex -halt-on-error lab_report_template.tex
+% =========================================================
+
+\documentclass[UTF8,a4paper,11pt]{ctexart}
+
+% 页面与基础排版
+\usepackage{geometry}
+\geometry{left=2.35cm,right=2.35cm,top=2.25cm,bottom=2.25cm,headheight=22pt}
+\usepackage{setspace}
+\setstretch{1.28}
+\setlength{\parindent}{2em}
+\setlength{\parskip}{0.25em}
+
+% 颜色
+\usepackage{xcolor}
+\definecolor{MainBlue}{HTML}{0B5CAD}
+\definecolor{DeepBlue}{HTML}{173A5E}
+\definecolor{TextGray}{HTML}{5E6A75}
+\definecolor{CodeBG}{HTML}{F5F7F9}
+\definecolor{CodeFrame}{HTML}{CBD5DF}
+\definecolor{RuleBlue}{HTML}{8FB6D8}
+
+% 图片、表格、数学
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{placeins}
+
+% 代码
+\usepackage{listings}
+\lstdefinestyle{basecode}{
+  basicstyle=\ttfamily\small,
+  backgroundcolor=\color{CodeBG},
+  frame=single,
+  rulecolor=\color{CodeFrame},
+  framerule=0.5pt,
+  xleftmargin=0.4em,
+  xrightmargin=0.4em,
+  framexleftmargin=0.7em,
+  framexrightmargin=0.7em,
+  framesep=0.55em,
+  aboveskip=0.8em,
+  belowskip=0.8em,
+  breaklines=true,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false,
+  tabsize=4
+}
+\lstdefinestyle{terminal}{
+  style=basecode,
+  numbers=none
+}
+\lstdefinestyle{source}{
+  style=basecode,
+  numbers=left,
+  numberstyle=\scriptsize\color{TextGray},
+  numbersep=8pt
+}
+
+% 页眉页脚
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{TextGray}系统开发工具基础 · 第3周实验报告}
+\fancyfoot[C]{\small\color{TextGray}第 \thepage\ 页}
+\renewcommand{\headrulewidth}{0.45pt}
+\renewcommand{\footrulewidth}{0pt}
+\makeatletter
+\renewcommand{\headrule}{\hbox to\headwidth{\color{RuleBlue}\leaders\hrule height \headrulewidth\hfill}}
+\makeatother
+
+% 标题层级
+\ctexset{
+  section={
+    format=\Large\bfseries\color{DeepBlue},
+    number=\arabic{section},
+    aftername=\quad,
+    beforeskip=1.3em,
+    afterskip=0.75em
+  },
+  subsection={
+    format=\large\bfseries\color{MainBlue},
+    number=\thesection.\arabic{subsection},
+    aftername=\quad,
+    beforeskip=1.05em,
+    afterskip=0.55em
+  },
+  subsubsection={
+    format=\normalsize\bfseries\color{DeepBlue},
+    number=\thesubsection.\arabic{subsubsection},
+    aftername=\quad,
+    beforeskip=0.85em,
+    afterskip=0.35em
+  }
+}
+
+% 图题、表题
+\captionsetup{
+  font=small,
+  labelfont=bf,
+  labelsep=space,
+  justification=centering,
+  skip=6pt
+}
+\renewcommand{\figurename}{图}
+\renewcommand{\tablename}{表}
+
+% 超链接
+\usepackage[hidelinks]{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=DeepBlue,
+  urlcolor=MainBlue
+}
+
+% 自定义小组件
+\newcommand{\taskmeta}[1]{%
+  \noindent\textcolor{TextGray}{\textbf{主题：}#1}\par\vspace{0.55em}
+}
+
+\newcommand{\insertfigure}[3][0.88]{%
+  \begin{figure}[H]
+    \centering
+    \IfFileExists{#2}{%
+      \includegraphics[width=#1\textwidth]{#2}%
+    }{%
+      \fcolorbox{CodeFrame}{CodeBG}{%
+        \parbox[c][2.6cm][c]{0.86\textwidth}{\centering\color{TextGray}待补截图：\texttt{#2}}%
+      }%
+    }%
+    \caption{#3}
+  \end{figure}
+}
+
+% 文档标题信息
+\newcommand{\reporttitle}{系统开发工具基础实验报告}
+\newcommand{\reportsubtitle}{第3周：Packaging and Shipping Code；智能体编程；不止于代码；Python 与PyTorch}
+\newcommand{\studentname}{姬艺华}
+\newcommand{\studentid}{25020007046}
+\newcommand{\reportdate}{2026年9月7日}
+
+
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+\begin{document}
+
+% 封面
+\begin{titlepage}
+  \thispagestyle{empty}
+  \centering
+  \vspace*{1.8cm}
+
+  \IfFileExists{figures/ouc-logo.png}{%
+    \includegraphics[width=0.48\textwidth]{figures/ouc-logo.png}\\[1.1cm]
+  }
+
+  {\fontsize{25pt}{31pt}\selectfont\bfseries \reporttitle}\\[0.8cm]
+  {\Large\color{TextGray}\reportsubtitle}\\[1.8cm]
+
+  \rule{0.68\textwidth}{0.7pt}\\[1.25cm]
+
+  \begin{tabular}{>{\bfseries}r l}
+    姓名： & \studentname \\[0.65cm]
+    学号： & \studentid \\[0.65cm]
+    日期： & \reportdate
+  \end{tabular}
+
+  \vfill
+  {\small\color{TextGray}系统开发工具基础 · 实验报告}
+\end{titlepage}
+
+
+\thispagestyle{fancy}
+\tableofcontents
+\clearpage
+
+
+% ==========================
+% 正文开始
+% ==========================
+
+\section{课上习题}
+
+本模块记录上课实验四道例题操作基本过程，以及关键点。
+
+%============================================================
+
+\subsection{第9题：从源码构建并在干净环境安装Wheel}
+
+\taskmeta{Packaging and Shipping Code}
+
+\subsubsection{任务说明}
+
+创建一个简单的 Python 命令行工具，并将源码打包生成 Wheel 安装包；随后在新的虚拟环境中安装生成的 Wheel 文件，验证安装后的命令是否可以正常运行。
+
+\subsubsection{关键操作}
+
+创建 \texttt{src/greetlab/\_init\_.py}、给定的 \texttt{cli.py} 和 \texttt{pyproject.toml}；在已安装build工具的课程环境中运行 \texttt{python -m build}，生成wheel；新建一个干净虚拟环境，只从生成的wheel安装；切换到q09之外运行 \texttt{sdt-greet --name}：
+
+\begin{lstlisting}[style=terminal]
+pip install build
+python -m build
+python -m venv clean_env
+clean_env\Scripts\activate
+pip install dist\greetlab_25020007046-0.1.0-py3-none-any.whl
+sdt-greet --name 姬艺华
+\end{lstlisting}
+
+
+\noindent{\small\textbf{关键点：}}
+
+\begin{itemize}[leftmargin=2em,itemsep=0.2em,topsep=0.3em]
+    \small
+    \item 使用标准 Python 项目结构，将源代码放入 src 目录中，greetlab 作为 Python 包。
+    \item 配置项目打包信息：\texttt{pyproject.toml} 用于描述 Python 项目的构建方式和元数据。其中 \texttt{sdt-greet = "greetlab.cli:main"} 表示安装该包后，可以通过 sdt-greet 命令调用 cli.py 中的 main() 函数。
+    \item \texttt{pip install build} 安装 Python 官方构建工具，用于将源码转换为可安装的 Wheel 文件。
+    \item \texttt{python -m build} 生成 dist 文件，build 根据 pyproject.toml 配置，将源码打包。其中 \texttt{.whl}：Python 二进制安装包，用于安装；\texttt{.tar.gz}：源码分发包。
+    \item \texttt{python -m venv clean\_env} 创建独立 Python 环境，模拟其他用户安装该包的情况，避免受到系统环境影响。
+    \item pip install dist/greetlab\_25020007046\texttt{-0.1.0-py3-none-any.whl} 从生成的 Wheel 文件安装 Python 包。
+\end{itemize}
+\subsubsection{实验结果}
+
+\insertfigure{figures/3.1.png}{确认运行结果}
+
+\FloatBarrier
+
+
+%====================================================================
+
+\subsection{第10题：让编程智能体进入可验证的修复循环}
+
+\taskmeta{智能体编程}
+
+\subsubsection{任务说明}
+
+本实验要求在第 9 题 Python 命令行工具的基础上，引入自动化测试流程。通过添加测试用例发现程序缺陷，利用编程智能体分析问题并修改代码，最后通过测试验证修复结果。
+
+\subsubsection{关键操作}
+
+创建 q10 项目（复制q09），编写测试文件夹tests以及测试文件test\_cli.py，并运行，发现首次运行失败：
+
+\begin{lstlisting}[style=source]
+#tests/test_cli.py
+import pytest
+from greetlab.cli import main
+
+def test_empty_name(monkeypatch):
+    monkeypatch.setattr(
+        "sys.argv",
+        ["sdt-greet", "--name", "   "]
+    )
+
+    with pytest.raises(SystemExit):
+        main()
+\end{lstlisting}
+
+其中with pytest.raises(SystemExit):  main()表示测试要求当输入只有空白字符时，程序应该异常退出。如果程序没有退出，则测试失败。
+
+
+\begin{lstlisting}[style=terminal]
+pytest
+
+Failed: DID NOT RAISE <class 'SystemExit'>
+\end{lstlisting}
+
+表示当前程序没有处理空白参数，需要进行代码修复。
+
+修改程序增加输入检查，使用 strip() 删除字符串两端空格，当输入为空白字符时退出程序，避免无效输入：
+
+\begin{lstlisting}[style=source]
+import argparse
+
+def main():
+    p = argparse.ArgumentParser()
+    p.add_argument("--name", required=True)
+    a = p.parse_args()
+
+    if not a.name.strip():
+        raise SystemExit(2)
+
+    print(f"Hello, {a.name}!")
+
+if __name__ == "__main__":
+    main()
+\end{lstlisting}
+
+
+\noindent{\small\textbf{关键点：}}
+
+\begin{itemize}[leftmargin=2em,itemsep=0.2em,topsep=0.3em]
+    \small
+    \item 测试驱动修复流程：发现问题->编写测试->运行失败->修改代码->测试通过
+    \item pytest 可以自动执行测试用例，帮助快速发现程序错误。
+    \item SystemExit 用于让命令行程序返回错误状态。
+    \item strip() 可以去除字符串中的空格，用于判断用户输入是否有效。
+    \item 自动化测试可以降低人工检查成本，提高代码可靠性。
+\end{itemize}
+
+
+\subsubsection{实验结果}
+
+\insertfigure{figures/3.2.png}{修复前测试失败结果}
+\insertfigure{figures/3.3.png}{修复后测试通过结果}
+
+
+
+%===============================================================
+
+\subsection{第11题：用调试器定位归并排序缺陷}
+
+\taskmeta{不止于代码}
+
+\subsubsection{任务说明}
+
+本实验要求将一个模糊的软件问题描述整理为规范的协作记录，包括 Issue、提交信息和代码评审意见。通过 Markdown 文件记录问题背景、修复方案以及 Review 结果，模拟真实软件开发中的协作流程。
+
+\subsubsection{关键操作}
+
+创建communication.md。
+
+使用 Markdown 文件记录软件开发过程中的问题反馈、修改说明和评审意见，方便团队成员理解和追踪问题。
+
+编写issue问题描述：问题标题，运行环境，问题描述，复现步骤，期望结果，实际结果。
+
+将模糊的问题描述转换为结构化信息，使开发人员能够快速理解问题并进行修复。
+
+
+\noindent{\small\textbf{关键点：}}
+
+\begin{itemize}[leftmargin=2em,itemsep=0.2em,topsep=0.3em]
+    \small
+    \item Issue 需要描述清楚问题背景、复现方法以及期望行为。
+    \item 提交信息应该简洁明确，能够反映修改目的。
+    \item Code Review 不仅检查代码是否正确，还需要关注潜在风险和优化方向。
+    \item Markdown 是软件开发中常用的文档格式，可以方便地在 GitHub 等平台展示和维护。
+\end{itemize}
+
+
+\subsubsection{实验结果}
+
+\insertfigure{figures/3.4.png}{md文件内容}
+
+\insertfigure{figures/3.5.png}{md文件内容}
+
+\insertfigure{figures/3.6.png}{md文件内容}
+
+
+
+%========================================================
+
+\subsection{第12题：修复一个可复现的线性回归训练循环}
+
+\taskmeta{Python与PyTorch}
+
+\subsubsection{任务说明}
+
+本实验使用 PyTorch 完成一个简单线性回归训练任务，通过梯度下降优化模型参数，使模型学习目标函数 y=3x-1。
+
+\subsubsection{关键操作}
+
+补全训练循环，调用zero\_grad、backward、step；训练后用model.eval()，并在torch.no\_grad()中计算最终损失；打印最终损失weight bias：
+
+\begin{lstlisting}[style=source] 
+import torch
+from torch import nn
+torch.manual_seed(20260907)
+x = torch.linspace(-1, 1, 101).reshape(-1, 1)
+y = 3 * x - 1
+model = nn.Linear(1, 1)
+loss_fn = nn.MSELoss()
+opt = torch.optim.SGD(model.parameters(), lr=0.1)
+for _ in range(200):
+    pred = model(x)
+    loss = loss_fn(pred, y)
+    opt.zero_grad()
+    loss.backward()
+    opt.step()
+model.eval()
+with torch.no_grad():
+    pred = model(x)
+    final_loss = loss_fn(pred, y)
+    print("loss:", final_loss.item())
+    print("weight:", model.weight.item())
+    print("bias:", model.bias.item())
+\end{lstlisting}
+
+
+\noindent{\small\textbf{代码解释：}}
+
+\begin{itemize}[leftmargin=2em,itemsep=0.2em,topsep=0.3em]
+    \small
+    \item model = nn.Linear(1, 1) 创建线性模型，数学形式$y = wx + b$，w、b不知道，需要训练。
+    \item loss\_fn = nn.MSELoss() 定义损失函数，计算预测值和真实值之间差多少。
+    \item opt = torch.optim.SGD(model.parameters(),lr=0.1) 优化器，SGD随机阶梯下降；作用：根据错误方向调整weight、bias。
+\end{itemize}
+
+
+\noindent{\small\textbf{三个TODO：}}
+
+\begin{itemize}[leftmargin=2em,itemsep=0.2em,topsep=0.3em]
+    \small
+    \item 清空梯度：opt.zero\_grad()，每轮训练开始要清空。
+    \item 反向传播：loss.backward()，损失函数对于参数的梯度。
+    \item 更新参数：opt.step()，根据梯度修改weight、bias。
+    \item 进入评估模式：model.eval()，表示模型现在不是训练状态。
+    \item 不计算梯度：with torch.no\_grad(): 只是查看结果，不训练。
+    \item 计算最终结果：with torch.no\_grad():pred = model(x) final\_loss = loss\_fn(pred, y) print("loss:", final\_loss.item()) print("weight:", model.weight.item()) print("bias:", model.bias.item())
+\end{itemize}
+
+
+\noindent{\small\textbf{关键点：}}
+
+\begin{itemize}[leftmargin=2em,itemsep=0.2em,topsep=0.3em]
+    \small
+    \item PyTorch 训练流程通常包括：前向传播、计算损失、反向传播、参数更新。
+    \item 梯度是模型优化的重要依据。
+    \item 训练阶段和评估阶段需要区分。
+    \item 不能直接给 weight 和 bias 赋值，需要通过优化过程学习参数。
+\end{itemize}
+
+
+\subsubsection{实验结果}
+
+\insertfigure{figures/3.7.png}{训练后内容}
+
+
+% =========================================================
+\section{课下习题}
+% =========================================================
+
+
+
+\subsection{查看 Python 环境信息}
+
+查看当前 Python 版本和安装的第三方包。
+
+\begin{lstlisting}[style=terminal]
+python --version
+python -m pip list
+\end{lstlisting}
+
+了解当前开发环境，方便排查依赖问题。
+
+\insertfigure{figures/3.8.png}{终端输出}
+
+\subsection{创建 Python 包并本地安装}
+
+创建一个简单 Python 包，并使用 pip 安装，然后测试是否可以调用。
+
+hello.py
+
+\begin{lstlisting}[style=source,language=Python]
+def say():
+    return "hello system tools"
+\end{lstlisting}
+
+pyproject.toml
+
+\begin{lstlisting}[style=source]
+[build-system]
+requires=["setuptools"]
+build-backend="setuptools.build_meta"
+[project]
+name="hello-package"
+version="0.1.0"
+\end{lstlisting}
+
+安装、测试、运行：
+
+\begin{lstlisting}[style=terminal]
+pip install .
+\end{lstlisting}
+
+test.py
+
+\begin{lstlisting}[style=source,language=Python]
+from hello.hello import say
+
+print(say())
+\end{lstlisting}
+
+\begin{lstlisting}[style=terminal]
+python test.py
+\end{lstlisting}
+
+
+\insertfigure{figures/3.9.png}{查看输出结果}
+
+
+\subsection{虚拟环境隔离测试}
+
+创建两个环境，观察 Python 包隔离。
+
+\begin{lstlisting}[style=terminal]
+python -m venv env1 创建环境
+env1\Scripts\activate 激活环境
+pip install requests 安装
+pip list 查看
+deactivate 退出
+\end{lstlisting}
+
+\insertfigure{figures/3.10.png}{查看}
+\insertfigure{figures/3.11.png}{查看}
+
+\subsection{pytest测试函数}
+
+使用 pytest 验证代码正确性。
+
+\begin{lstlisting}[style=terminal]
+pip install pytest 安装
+math.py , test_math.py 创建
+pytest 测试
+\end{lstlisting}
+
+\begin{lstlisting}[style=source,language=Python]
+#math.py
+  def add(a,b):
+    return a+b
+
+#test_math.py
+from math import add
+def test_add():
+    assert add(1,2)==3
+\end{lstlisting}
+
+\insertfigure{figures/3.12.png}{查看}
+
+
+
+\subsection{pytest发现并修复错误}
+
+模拟智能编程修复过程。
+
+\begin{lstlisting}[style=source,language=Python]
+#mymath.py
+def multiply(a,b):
+    return a+b
+#test_math.py
+def test():
+    assert multiply(2,3)==6
+\end{lstlisting}
+
+修复只需要将mytest中的a+b改为a*b。
+
+\insertfigure{figures/3.13.png}{查看报错}
+
+\insertfigure{figures/3.14.png}{查看修复}
+
+\subsection{Shell自动运行Python程序}
+
+使用Shell脚本自动执行Python程序。
+
+\begin{lstlisting}[style=source]
+#run.sh
+#!/bin/bash
+pytest
+\end{lstlisting}
+
+运行：
+
+\begin{lstlisting}[style=terminal]
+bash run.sh
+\end{lstlisting}
+
+\insertfigure{figures/3.15.png}{查看自动运行结果}
+
+
+\subsection{Python日志记录}
+
+使用logging替代print。
+
+\begin{lstlisting}[style=source,language=Python]
+#app.py
+import logging
+logging.basicConfig(
+    filename="app.log",
+    level=logging.INFO,
+    format="%(levelname)s:%(message)s"
+)
+logging.info("program start")
+x = 10
+y = 2
+logging.info(f"x={x}, y={y}")
+result = x / y
+logging.info(f"result={result}")
+print("finish")
+logging.info("program start")
+\end{lstlisting}
+
+
+\insertfigure{figures/3.16.png}{ }
+
+\insertfigure{figures/3.17.png}{查看输出日志}
+
+
+\subsection{增加错误日志}
+
+\begin{lstlisting}[style=source,language=bash]
+#app.py
+import logging
+logging.basicConfig(
+    filename="app.log",
+    level=logging.INFO,
+    format="%(levelname)s:%(message)s"
+)
+logging.info("program start")
+x = 10
+y = 2
+logging.info(f"x={x}, y={y}")
+
+try:
+    result = x / y
+    logging.info(f"result={result}")
+except Exception as e:
+    logging.error(e)
+
+logging.info(f"result={result}")
+print("finish")
+\end{lstlisting}
+
+此时如果y=0，日志会记录错误。
+
+
+\subsection{使用 requirements.txt 管理项目依赖}
+
+在 Python 项目中，使用 requirements.txt 保存项目依赖，使其他环境可以快速恢复运行环境。
+
+如果其他人拿到项目可以直接：
+
+\begin{lstlisting}[style=terminal]
+pip install -r requirements.txt
+\end{lstlisting}
+
+\insertfigure{figures/3.18.png}{查看电脑环境}
+
+\insertfigure{figures/3.19.png}{查看文件}
+
+
+
+
+\subsection{PyTorch模型保存与加载}
+
+保存训练好的模型，并重新加载验证结果。
+
+\begin{lstlisting}[style=source,language=Python]
+import torch
+from torch import nn
+torch.manual_seed(20260907)
+x = torch.linspace(-1, 1, 101).reshape(-1, 1)
+y = 3 * x- 1
+model = nn.Linear(1, 1)
+loss_fn = nn.MSELoss()
+opt = torch.optim.SGD(model.parameters(), lr=0.1)
+for _ in range(200):
+    pred = model(x)
+    loss = loss_fn(pred, y)
+    opt.zero_grad()
+    loss.backward()
+    opt.step()
+model.eval()
+with torch.no_grad():
+        pred = model(x)
+        final_loss = loss_fn(pred, y)
+        print("loss:", final_loss.item())
+        print("weight:", model.weight.item())
+        print("bias:", model.bias.item())
+torch.save(model.state_dict(), "model.pt")
+\end{lstlisting}
+
+运行：
+
+\begin{lstlisting}[style=terminal]
+python train.py
+\end{lstlisting}
+
+创建文件：
+
+\begin{lstlisting}[style=source,language=Python]
+#predict.py
+import torch
+from torch import nn
+model = nn.Linear(1,1)
+model.load_state_dict(
+    torch.load("model.pt")
+)
+model.eval()
+x = torch.tensor([[5.]])
+with torch.no_grad():
+    y = model(x)
+    print(y)
+\end{lstlisting}
+
+运行：
+
+\begin{lstlisting}[style=terminal]
+python predict.py
+\end{lstlisting}
+
+\insertfigure{figures/3.20.png}{运行结果}
+
+
+
+\FloatBarrier
+
+
+\section{Git 与作业提交}
+
+\subsection{仓库内容整理}
+
+\begin{lstlisting}[style=terminal]
+8.24/
+|-- q01/
+|-- q02/
+|-- q03/
+|-- q04/
+|-- q05/
+|-- q06/
+|-- q07/
+|-- q08/
+|-- q09/
+|-- q10/
+|-- q11/
+|-- q12/
+`-- lab_report/
+    |-- figures/
+    |-- report.tex
+    |-- report.pdf
+    |-- report2.tex
+    |-- report2.pdf
+    |-- report3.pdf
+    `-- report3.tex
+\end{lstlisting}
+
+\subsection{GitHub / Gitee 提交记录}
+
+\noindent\textbf{仓库地址：}\texttt{https://github.com/haru-senya/8.24.git}
+
+\subsection{commit 记录截图、仓库页面截图}
+\insertfigure{figures/git-commits3.png}{Git commit 记录}
+
+\insertfigure{figures/git-repo3.png}{GitHub / Gitee 仓库页面}
+
+\FloatBarrier
+
+\section{问题与总结}
+
+\subsection{遇到的问题}
+
+\begin{itemize}[leftmargin=2em]
+
+\item \textbf{Python 环境中缺少依赖：}
+在完成 q09 时运行 \texttt{python -m build} 时提示 \texttt{No module named build}。
+检查发现当前 Python 环境中没有安装构建工具，因此使用 \texttt{pip install build} 安装。
+安装过程中由于网络访问 PyPI 较慢，切换到国内镜像源后成功完成安装。
+
+\item \textbf{Python 模块导入错误：}
+q10 测试实验中运行 pytest 时出现 \texttt{ModuleNotFoundError}。
+检查项目结构后发现测试环境无法找到对应模块。
+通过调整项目目录结构和安装方式，使测试代码能够正确导入目标模块。
+
+\item \textbf{pytest 测试失败定位问题：}
+在 q10 中第一次运行测试时，测试未通过，提示空字符串输入情况下程序没有抛出 \texttt{SystemExit}。
+根据测试信息定位到参数校验逻辑缺失，修改代码后重新运行 pytest，最终测试通过。
+通过该过程理解了测试驱动开发中“发现问题—修改代码—重新验证”的流程。
+
+\item \textbf{训练结果输出位置错误：}
+初次运行 q12 时，将 loss、weight 和 bias 的输出放在训练循环内部，导致终端输出大量重复信息。
+调整代码结构，将最终结果输出移动到训练结束后的评估阶段，使输出符合实验要求。
+
+\end{itemize}
+
+
+\subsection{实验总结}
+
+通过本次实验，我进一步熟悉了 Python 项目开发过程中的工具链使用，包括项目打包、虚拟环境管理、自动化测试以及深度学习环境配置。
+
+在 q09 实验中，我学习了如何通过 \texttt{pyproject.toml} 配置 Python 项目，并使用 \texttt{python -m build} 生成 wheel 包，再通过独立虚拟环境完成安装验证，理解了 Python 项目从源码到可发布包的基本流程。
+
+在 q10 实验中，我掌握了 pytest 测试工具的基本使用方法，并通过测试失败结果定位程序问题，理解了自动化测试在软件开发中的作用。实验过程中也认识到合理的项目结构和模块命名对于代码维护的重要性。
+
+在 q12 实验中，我完成了基于 PyTorch 的线性回归训练流程，理解了梯度清零、反向传播和参数更新的基本过程。同时，通过配置 PyTorch 环境和调试代码错误，提高了对 Python 开发环境和深度学习工具使用的熟练程度。
+
+总体来说，本次实验不仅提升了对 Python 工程化开发工具的使用能力，也让我认识到软件开发不仅需要实现功能，还需要关注环境管理、自动化测试、代码规范和问题定位能力。在后续学习中，需要继续加强对开发工具链和工程实践流程的掌握。
+
+
+\end{document}
