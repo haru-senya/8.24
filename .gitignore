@@ -6,6 +6,9 @@
 *.toc
 *.out
 *.xdv
+dist/
+build/
+*.egg-info/
 
 *~
 *.tmp
