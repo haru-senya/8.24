@@ -650,76 +650,31 @@ result.txt: main.py
 cat score.json | jq '.[] | select(.score>60)'
 \end{lstlisting}
 
-\subsection{循环执行程序直到失败}
+\subsection{使用Git查看并恢复错误修改}
 
-\begin{lstlisting}[style=source,language=bash]
-while true; do
-    count=$((count + 1))
+创建一个文件后先保存传入暂存区（git add），后修改文件内容，查看冲突：
 
-    ./random.sh > stdout.log 2> stderr.log
-
-    if [[ $? -ne 0 ]]; then
-        echo "Failed after $count runs"
-        cat stdout.log
-        cat stderr.log
-        break
-    fi
-done
+\begin{lstlisting}[style=terminal]
+git status
+git diff
+git checkout -- test.py（确认修改）
 \end{lstlisting}
 
 编写脚本循环运行随机失败程序，分别保存标准输出和标准错误。当程序返回非零状态时停止运行，输出失败次数和错误信息。本次实验中程序运行 105 次后失败，成功捕获错误输出。
 
-\insertfigure{figures/t5.png}{循环执行程序直到失败的结果}
 
-\subsection{目录文件数量统计脚本}
+\subsection{使用虚拟环境管理Python依赖}
 
-编写 Shell 脚本 \texttt{check\_dir.sh}，通过输入目录路径判断目录是否存在，并统计其中普通文件数量。
+虚拟环境可以隔离不同项目的Python依赖，避免不同项目之间的库版本冲突：
 
-\begin{lstlisting}[style=source,language=bash]
-#!/bin/bash
-
-if [ -d "$1" ]; then
-    echo "Directory exists."
-
-    count=$(find "$1" -type f | wc -l)
-
-    echo "File count: $count"
-else
-    echo "Directory does not exist."
-fi
+\begin{lstlisting}[style=terminal]
+python -m venv .venv 创建虚拟环境
+.venv\Scripts\activate 激活虚拟环境
+pip install pytest 安装依赖
+pip list 查看依赖
+deactivate 退出虚拟环境
 \end{lstlisting}
 
-其中，\texttt{\$1} 表示脚本输入的第一个参数，\texttt{-d} 用于判断目录是否存在，\texttt{find} 命令用于查找普通文件，\texttt{wc -l} 用于统计文件数量。
-
-测试结果显示，当输入存在目录时，脚本能够输出文件数量；输入不存在目录时，能够正确提示目录不存在。
-
-\insertfigure{figures/t6.png}{目录文件数量统计脚本运行结果}
-
-\subsection{文本文件单词数量统计脚本}
-
-编写 Shell 脚本 \texttt{count\_words.sh}，实现输入文本文件路径并统计文件中单词数量的功能。
-
-\begin{lstlisting}[style=source,language=bash]
-#!/bin/bash
-
-file=$1
-
-if [ -f "$file" ]; then
-    echo "File: $file"
-
-    count=$(wc -w < "$file")
-
-    echo "Word count: $count"
-else
-    echo "File does not exist."
-fi
-\end{lstlisting}
-
-脚本通过 \texttt{\$1} 获取输入文件路径，使用 \texttt{-f} 判断文件是否存在，并利用 \texttt{wc -w} 命令统计文件中的单词数量。
-
-测试结果表明，当输入有效文件时，脚本能够正确输出单词数量；当输入不存在的文件时，能够给出错误提示。
-
-\insertfigure{figures/t7.png}{统计文本文件单词数量脚本运行结果}
 
 
 \FloatBarrier
@@ -764,9 +719,9 @@ fi
 \noindent\textbf{仓库地址：}\texttt{https://github.com/haru-senya/8.24.git}
 
 \subsection{commit 记录截图、仓库页面截图}
-\insertfigure{figures/git-commits2.png}{Git commit 记录}
+\insertfigure{figures/git-commits4.png}{Git commit 记录}
 
-\insertfigure{figures/git-repo2.png}{GitHub / Gitee 仓库页面}
+\insertfigure{figures/git-repo4.png}{GitHub / Gitee 仓库页面}
 
 \FloatBarrier
 
