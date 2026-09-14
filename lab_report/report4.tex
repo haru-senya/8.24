@@ -1,0 +1,833 @@
+% !TeX program = xelatex
+% =========================================================
+% 系统开发工具基础 - 实验报告模板
+% 编译使用工具：latexmk -xelatex -halt-on-error lab_report_template.tex
+% =========================================================
+
+\documentclass[UTF8,a4paper,11pt]{ctexart}
+
+% 页面与基础排版
+\usepackage{geometry}
+\geometry{left=2.35cm,right=2.35cm,top=2.25cm,bottom=2.25cm,headheight=22pt}
+\usepackage{setspace}
+\setstretch{1.28}
+\setlength{\parindent}{2em}
+\setlength{\parskip}{0.25em}
+
+% 颜色
+\usepackage{xcolor}
+\definecolor{MainBlue}{HTML}{0B5CAD}
+\definecolor{DeepBlue}{HTML}{173A5E}
+\definecolor{TextGray}{HTML}{5E6A75}
+\definecolor{CodeBG}{HTML}{F5F7F9}
+\definecolor{CodeFrame}{HTML}{CBD5DF}
+\definecolor{RuleBlue}{HTML}{8FB6D8}
+
+% 图片、表格、数学
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{placeins}
+
+% 代码
+\usepackage{listings}
+\lstdefinestyle{basecode}{
+  basicstyle=\ttfamily\small,
+  backgroundcolor=\color{CodeBG},
+  frame=single,
+  rulecolor=\color{CodeFrame},
+  framerule=0.5pt,
+  xleftmargin=0.4em,
+  xrightmargin=0.4em,
+  framexleftmargin=0.7em,
+  framexrightmargin=0.7em,
+  framesep=0.55em,
+  aboveskip=0.8em,
+  belowskip=0.8em,
+  breaklines=true,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false,
+  tabsize=4
+}
+\lstdefinestyle{terminal}{
+  style=basecode,
+  numbers=none
+}
+\lstdefinestyle{source}{
+  style=basecode,
+  numbers=left,
+  numberstyle=\scriptsize\color{TextGray},
+  numbersep=8pt
+}
+
+% 页眉页脚
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{TextGray}系统开发工具基础 · 第4周实验报告}
+\fancyfoot[C]{\small\color{TextGray}第 \thepage\ 页}
+\renewcommand{\headrulewidth}{0.45pt}
+\renewcommand{\footrulewidth}{0pt}
+\makeatletter
+\renewcommand{\headrule}{\hbox to\headwidth{\color{RuleBlue}\leaders\hrule height \headrulewidth\hfill}}
+\makeatother
+
+% 标题层级
+\ctexset{
+  section={
+    format=\Large\bfseries\color{DeepBlue},
+    number=\arabic{section},
+    aftername=\quad,
+    beforeskip=1.3em,
+    afterskip=0.75em
+  },
+  subsection={
+    format=\large\bfseries\color{MainBlue},
+    number=\thesection.\arabic{subsection},
+    aftername=\quad,
+    beforeskip=1.05em,
+    afterskip=0.55em
+  },
+  subsubsection={
+    format=\normalsize\bfseries\color{DeepBlue},
+    number=\thesubsection.\arabic{subsubsection},
+    aftername=\quad,
+    beforeskip=0.85em,
+    afterskip=0.35em
+  }
+}
+
+% 图题、表题
+\captionsetup{
+  font=small,
+  labelfont=bf,
+  labelsep=space,
+  justification=centering,
+  skip=6pt
+}
+\renewcommand{\figurename}{图}
+\renewcommand{\tablename}{表}
+
+% 超链接
+\usepackage[hidelinks]{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=DeepBlue,
+  urlcolor=MainBlue
+}
+
+% 自定义小组件
+\newcommand{\taskmeta}[1]{%
+  \noindent\textcolor{TextGray}{\textbf{主题：}#1}\par\vspace{0.55em}
+}
+
+\newcommand{\insertfigure}[3][0.88]{%
+  \begin{figure}[H]
+    \centering
+    \IfFileExists{#2}{%
+      \includegraphics[width=#1\textwidth]{#2}%
+    }{%
+      \fcolorbox{CodeFrame}{CodeBG}{%
+        \parbox[c][2.6cm][c]{0.86\textwidth}{\centering\color{TextGray}待补截图：\texttt{#2}}%
+      }%
+    }%
+    \caption{#3}
+  \end{figure}
+}
+
+% 文档标题信息
+\newcommand{\reporttitle}{系统开发工具基础实验报告}
+\newcommand{\reportsubtitle}{第4周：代码质量；元编程；大杂烩；课堂综合测试}
+\newcommand{\studentname}{姬艺华}
+\newcommand{\studentid}{25020007046}
+\newcommand{\reportdate}{2026年9月11日}
+
+
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+\begin{document}
+
+% 封面
+\begin{titlepage}
+  \thispagestyle{empty}
+  \centering
+  \vspace*{1.8cm}
+
+  \IfFileExists{figures/ouc-logo.png}{%
+    \includegraphics[width=0.48\textwidth]{figures/ouc-logo.png}\\[1.1cm]
+  }
+
+  {\fontsize{25pt}{31pt}\selectfont\bfseries \reporttitle}\\[0.8cm]
+  {\Large\color{TextGray}\reportsubtitle}\\[1.8cm]
+
+  \rule{0.68\textwidth}{0.7pt}\\[1.25cm]
+
+  \begin{tabular}{>{\bfseries}r l}
+    姓名： & \studentname \\[0.65cm]
+    学号： & \studentid \\[0.65cm]
+    日期： & \reportdate
+  \end{tabular}
+
+  \vfill
+  {\small\color{TextGray}系统开发工具基础 · 实验报告}
+\end{titlepage}
+
+
+\thispagestyle{fancy}
+\tableofcontents
+\clearpage
+
+
+% ==========================
+% 正文开始
+% ==========================
+
+\section{课上习题}
+
+本模块记录上课实验四道例题操作基本过程，以及关键点。
+
+%============================================================
+
+\subsection{第13题：建立可执行的本地质量门禁}
+
+\taskmeta{代码质量}
+
+\subsubsection{任务说明}
+
+在 pyproject.toml 中加入 ruff 和 pytest 配置，补充正常姓名和空白姓名测试，运行 ruff format、ruff check、pytest，并编写 check.sh 一键执行检查。
+
+\subsubsection{关键操作}
+
+加入ruff以及pytest的最小配置；补充一个正常姓名测试和一个空白姓名测试，每个测试包含有效断言；
+
+\begin{lstlisting}[style=source]
+#pyproject.toml
+[tool.ruff]
+line-length = 88
+[tool.pytest.ini_options]
+testpaths = [
+    "tests"
+]
+
+#cli.py
+import argparse
+def main():
+    p = argparse.ArgumentParser()
+    p.add_argument("--name", required=True)
+    a = p.parse_args()
+    if not a.name.strip():
+        raise SystemExit(2)
+    print(f"Hello, {a.name}!")
+if __name__ == "__main__":
+    main()
+
+#test_cli.py
+import pytest
+from greetlab.cli import main
+def test_empty_name(monkeypatch):
+    monkeypatch.setattr(
+        "sys.argv",
+        ["sdt-greet", "--name", "   "]
+    )
+    with pytest.raises(SystemExit):
+        main()
+\end{lstlisting}
+
+
+编写check.sh，依次执行ruffformat--check、ruff check 和 pytest；运行并保证返回0：
+
+\begin{lstlisting}[style=source]
+#!/usr/bin/env bash
+set -e
+ruff format --check
+ruff check
+pytest
+\end{lstlisting}
+
+运行ruffformat、ruff check 和 pytest，修复全部问题：
+
+\begin{lstlisting}[style=terminal]
+chmod +x check.sh
+ls -l check.sh
+
+ruff format ruff自动调整书写规范
+ruff check 检查代码质量问题
+ruff format
+./check.sh
+\end{lstlisting}
+
+\noindent{\small\textbf{关键点：}}
+
+\begin{itemize}[leftmargin=2em,itemsep=0.2em,topsep=0.3em]
+    \small
+    \item \texttt{ruff format}：自动规范 Python 代码格式，\texttt{--check} 参数只检查不修改。
+    \item \texttt{ruff check}：静态检查代码问题，例如未使用变量、代码规范错误等。
+    \item \texttt{pytest}：自动执行测试用例，通过断言验证程序行为是否符合预期。
+    \item \texttt{SystemExit(2)}：用于表示空白姓名属于非法输入，测试时需要检查退出码。
+    \item \texttt{capsys} 可以捕获程序输出，用于验证正常输入时是否输出正确问候语。
+    \item \texttt{check.sh} 使用 \texttt{set -e}，保证任意一步检查失败后立即停止执行。
+\end{itemize}
+
+
+\subsubsection{实验结果}
+
+\insertfigure{figures/4.1.png}{测试正常姓名以及空白姓名}
+
+\insertfigure{figures/4.2.png}{check.sh脚本自动修改代码问题}
+
+\FloatBarrier
+
+
+%====================================================================
+
+\subsection{第14题：让Make只重建真正受影响的产物}
+
+\taskmeta{元编程；构建系统}
+
+\subsubsection{任务说明}
+
+使用 Makefile 管理一个简单的数据处理流程，让 Make 自动判断：哪些文件已经生成或变化，哪些目标需要重新执行。
+
+\subsubsection{关键操作}
+
+创建Makefile：
+
+\begin{lstlisting}[style=source]
+.PHONY: all clean
+
+all: report.txt
+
+stats.txt: data.csv stats.py
+	python stats.py
+
+report.txt: report.md stats.txt build_report.py
+	python build_report.py
+
+clean:
+	rm -f stats.txt report.txt
+\end{lstlisting}
+
+\noindent{\small\textbf{解释代码：}}
+
+\begin{itemize}[leftmargin=2em,itemsep=0.2em,topsep=0.3em]
+    \small
+    \item \texttt{.PHONY: }all clean ：声明 all 和 clean 为伪目标（Phony Target）。
+        因为all 和 clean 不是实际生成的文件；它们只是用于执行构建任务的命令入口。通过声明为 .PHONY，可以避免 Make 将它们误认为文件，从而保证make clean都会执行清理操作。
+    \item all: report.txt ：定义默认构建目标。执行make时，Make默认执行第一个目标all。
+        由于all依赖report.txt因此Make会检查并生成最终报告。
+    \item \texttt{stats.txt:} data.csv stats.py  python stats.py ：定义 stats.txt 的生成规则；其中依赖文件：data.csv，stats.py；目标文件：stats.txt。
+    \item \texttt{report.txt:} report.md \texttt{stats.txt} build\_report.py   python build\_report.py ：定义最终报告文件的生成规则，生成\texttt{report.txt}需要report.md，\texttt{srars.txt}，build\_report.py。
+    \item clean:    rm -f stats.txt \texttt{report.txt} ：执行make clean会删除由构建过程生成的文件\texttt{stats.txt}和\texttt{report.txt}。
+
+\end{itemize}
+
+\noindent{\small\textbf{关键点：}}
+
+\begin{itemize}[leftmargin=2em,itemsep=0.2em,topsep=0.3em]
+    \small
+    \item Make 是一种自动化构建工具，通过定义目标文件（target）、依赖文件（dependency）和生成命令，实现自动判断是否需要重新构建。
+    \item 第一次执行 \texttt{make} 时，Make 根据依赖关系依次执行\texttt{stats.py} 和 \texttt{build\_report.py}，生成\texttt{stats.txt} 和 \texttt{report.txt}。
+    \item 第二次执行 \texttt{make} 时，由于源文件未发生变化，所有目标文件均为最新状态，因此无需重新执行构建命令。
+    \item 当源文件未修改时，再次执行 \texttt{make} 不会重复执行命令，提高构建效率。
+    \item Makefile 中命令行前必须使用 Tab 缩进，不能使用普通空格，否则会出现 \texttt{missing separator} 错误。
+\end{itemize}
+
+
+
+
+\subsubsection{实验结果}
+
+
+\insertfigure{figures/4.3.png}{验证实验}
+
+
+
+
+
+%===============================================================
+
+\subsection{第15题：把本地API数据转换为可读报告}
+
+\taskmeta{大杂烩：API、jq、CLI约定与Markdown}
+
+\subsubsection{任务说明}
+
+创建本地 JSON 数据文件，并通过 Python HTTP 服务模拟 API 接口；使用 \texttt{curl} 获取 HTTP 返回的数据；
+使用 \texttt{jq} 对 JSON 数据进行筛选和排序；编写 \texttt{api\_report.sh} 自动生成 Markdown 格式的数据报告。
+
+\subsubsection{关键操作}
+
+运行python-mhttp.server 8000，使用curl-fsS获取http://127.0.0.1:8000/packages.json；
+
+\begin{lstlisting}[style=source,language=bash]
+python -m http.server 8000
+打开另一个窗口，测试 jq 是否能读取JSON：
+curl http://127.0.0.1:8000/packages.json
+\end{lstlisting}
+
+使用jq筛选status为active且downloads不少于100的记录，并按downloads降序、name升序排列；
+编写api\_report.sh，把结果生成summary.md，包含标题和name/version/downloads三列表格：
+
+\begin{lstlisting}[style=source]
+#测试筛选功能
+curl http://127.0.0.1:8000/packages.json | jq '
+.[] 
+| select(.status=="active" and .downloads>=100)
+'
+#加排序
+curl http://127.0.0.1:8000/packages.json | jq '
+[
+  .[]
+  | select(.status=="active" and .downloads>=100)
+]
+| sort_by(-.downloads, .name)
+'
+\end{lstlisting}
+
+编写 api\_report.sh，把结果生成 summary.md，包含标题和 name/version/downloads 三列表格：
+
+\begin{lstlisting}[style=source,language=bash]
+#api_report.sh
+
+#!/usr/bin/env bash
+
+curl -fsS http://127.0.0.1:8000/packages.json |
+jq -r '
+[
+  .[]
+  | select(.status=="active" and .downloads>=100)
+]
+| sort_by(-.downloads, .name)
+|
+(
+"# Package Summary\n\n" +
+"| name | version | downloads |\n" +
+"|---|---|---|\n" +
+(map("| \(.name) | \(.version) | \(.downloads) |") | join("\n"))
+)
+' > summary.md
+\end{lstlisting}
+
+
+\noindent{\small\textbf{关键点：}}
+
+\begin{itemize}[leftmargin=2em,itemsep=0.2em,topsep=0.3em]
+    \small
+    \item \texttt{curl} 用于从本地 HTTP 服务获取 JSON 数据。
+    \item \texttt{jq} 用于处理结构化 JSON 数据，相当于 JSON 数据处理工具。
+    \item \texttt{select()} 用于根据条件筛选对象。
+    \item \texttt{sort\_by()} 用于按照指定字段排序。
+    \item 管道符 \texttt{|} 将前一个命令的输出传递给下一个命令，实现数据处理流程自动化。
+\end{itemize}
+
+
+\subsubsection{实验结果}
+
+\insertfigure{figures/4.7.png}{实验结果查看}
+
+\insertfigure{figures/4.8.png}{实验结果查看}
+
+
+
+
+%========================================================
+
+\subsection{第16题：修复并交付一个陌生的小型工具仓库}
+
+\taskmeta{课堂综合测试}
+
+\subsubsection{任务说明}
+
+基于第13题项目复制创建q16，模拟实际软件开发中的缺陷修复流程；人为制造问候语输出错误，通过自动化测试定位程序问题；修复代码后重新运行测试，确保程序功能恢复正确；
+编写Makefile，实现代码检查、项目构建和清理操作；使用\texttt{python -m build}生成wheel安装包，并计算SHA-256校验值完成发布验证。
+
+\subsubsection{关键操作}
+
+复制q13为q16并初始化/继续使用Git；把问候语实现临时改成始终返回字面量Hello,name!，运行check.sh确认测试失败；随后定位并修复：
+
+制造并定位程序错误：
+
+\begin{lstlisting}[style=terminal] 
+#cli.py
+import argparse
+def main():
+    p = argparse.ArgumentParser()
+    p.add_argument("--name", required=True)
+    a = p.parse_args()
+    if not a.name.strip():
+        raise SystemExit(2)
+    print("Hello, name!") %修改print(f"Hello, {a.name}!")
+if __name__ == "__main__":
+    main()
+\end{lstlisting}
+
+q16是新的项目副本，需要重新进行安装；并使用pytest发现问题：
+
+\begin{lstlisting}[style=terminal] 
+pip install -e .
+pytest
+\end{lstlisting}
+
+使用Makefile自动化管理；创建Makefile：
+
+\begin{lstlisting}{style=terminal}
+.PHONY: check build clean
+
+check:
+	./check.sh
+
+build:
+	python -m build
+
+clean:
+	rm -rf dist build *.egg-info
+\end{lstlisting}
+
+构建wheel并验证发布文件；成功后生成文件：.whl 是Python二进制安装包、.tar.gz 是源码发布包：
+\begin{lstlisting}{style=terminal}
+make build
+\end{lstlisting}
+
+
+\noindent{\small\textbf{关键点：}}
+
+\begin{itemize}[leftmargin=2em,itemsep=0.2em,topsep=0.3em]
+  \small
+  \item \texttt{pip install -e .}：可编辑安装方式，使命令入口指向当前源码，方便开发调试。
+  \item 制造bug后通过\texttt{pytest}失败结果分析错误原因，再修改源码完成修复。
+  \item \texttt{Makefile}用于自动化管理项目流程，将检查、构建、清理等操作封装为简单命令。
+  \item \texttt{make check}整合格式检查、静态检查和测试，提高代码提交前的可靠性。
+  \item \texttt{python -m build}用于生成Python发布包，其中wheel文件可通过pip直接安装。
+  \item SHA-256校验值用于验证构建产物完整性，保证发布文件未被修改。
+\end{itemize}
+
+
+
+\subsubsection{实验结果}
+
+
+\insertfigure{figures/4.9.png}{错误代码}
+
+\insertfigure{figures/4.10.png}{错误问候语代码定位}
+
+\insertfigure{figures/4.11.png}{测试后修复截图}
+
+\insertfigure{figures/4.12.png}{make check自动测试通过}
+
+\insertfigure{figures/4.13.png}{Make build生成发布包}
+
+\insertfigure{figures/4.14.png}{wheel文件SHA-256校验结果}
+
+
+% =========================================================
+\section{课下习题}
+% =========================================================
+
+\subsection{Python命令行参数练习}
+
+\begin{lstlisting}[style=source]
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument('--user')
+args = parser.parse_args()
+print(f"Welcome, {args.user}!")
+\end{lstlisting}
+
+\begin{lstlisting}[style=terminal]
+执行python app.py --user Tom
+输出Welcome, Tom!
+\end{lstlisting}
+
+\insertfigure{figures/S1.png}{查看输出}
+
+
+\subsection{pytest测试字符串功能}
+
+\begin{lstlisting}[style=source]
+%check.py
+def is_even_length(s):
+    return len(s)%2==0
+\end{lstlisting}
+
+\begin{lstlisting}[style=source]
+%test_check.py
+from check import is_even_length
+def test_length():
+    assert is_even_length("abcd")
+\end{lstlisting}
+
+\insertfigure{figures/S2.png}{pytest}
+
+
+\subsection{使用ruff检查代码}
+
+错误格式代码：
+
+\begin{lstlisting}[style=source,language=Python]
+def hello():
+ print("hello")
+\end{lstlisting}
+
+输入命令：
+
+\begin{lstlisting}{style=source}
+ruff format --check
+ruff format
+\end{lstlisting}
+
+\insertfigure{figures/S3.png}{查看ruff结果}
+
+\subsection{使用Makefile管理Python程序}
+
+\begin{lstlisting}[style=source]
+%Makefile
+.PHONY: run clean
+run:
+	python main.py
+clean:
+	rm -f output.txt
+\end{lstlisting}
+
+\insertfigure{figures/S4.png}{自动执行结果}
+
+
+\subsection{理解Makefile依赖关系}
+
+\begin{lstlisting}[style=terminal]
+%Makefile
+result.txt: main.py
+	python main.py > result.txt
+\end{lstlisting}
+
+\insertfigure{figures/S5.png}{增量构建结果查看}
+
+
+\subsection{使用curl访问本地服务}
+
+\begin{lstlisting}[style=terminal]
+%index.html
+<h1>Hello Server</h1>
+\end{lstlisting}
+
+
+\insertfigure{figures/S6.png}{查看服务器状态}
+
+
+\subsection{使用jq统计JSON数据}
+
+\begin{lstlisting}[style=terminal]
+%data.json
+[
+{"name":"apple"},
+{"name":"banana"}
+]
+\end{lstlisting}
+
+. 表示当前数据；[  ] 遍历数组；.name 获取字段。
+
+\insertfigure{figures/S7.png}{统计JSON文件中所有商品名称}
+
+
+\subsection{使用jq过滤数据}
+
+\begin{lstlisting}[style=source]
+%score.json
+[
+{"name":"A","score":80},
+{"name":"B","score":50}
+]
+\end{lstlisting}
+
+\insertfigure{figures/S8.png}{查看筛选结果}
+
+执行：select()可以实现条件过滤。
+\begin{lstlisting}{style=terminal}
+cat score.json | jq '.[] | select(.score>60)'
+\end{lstlisting}
+
+\subsection{循环执行程序直到失败}
+
+\begin{lstlisting}[style=source,language=bash]
+while true; do
+    count=$((count + 1))
+
+    ./random.sh > stdout.log 2> stderr.log
+
+    if [[ $? -ne 0 ]]; then
+        echo "Failed after $count runs"
+        cat stdout.log
+        cat stderr.log
+        break
+    fi
+done
+\end{lstlisting}
+
+编写脚本循环运行随机失败程序，分别保存标准输出和标准错误。当程序返回非零状态时停止运行，输出失败次数和错误信息。本次实验中程序运行 105 次后失败，成功捕获错误输出。
+
+\insertfigure{figures/t5.png}{循环执行程序直到失败的结果}
+
+\subsection{目录文件数量统计脚本}
+
+编写 Shell 脚本 \texttt{check\_dir.sh}，通过输入目录路径判断目录是否存在，并统计其中普通文件数量。
+
+\begin{lstlisting}[style=source,language=bash]
+#!/bin/bash
+
+if [ -d "$1" ]; then
+    echo "Directory exists."
+
+    count=$(find "$1" -type f | wc -l)
+
+    echo "File count: $count"
+else
+    echo "Directory does not exist."
+fi
+\end{lstlisting}
+
+其中，\texttt{\$1} 表示脚本输入的第一个参数，\texttt{-d} 用于判断目录是否存在，\texttt{find} 命令用于查找普通文件，\texttt{wc -l} 用于统计文件数量。
+
+测试结果显示，当输入存在目录时，脚本能够输出文件数量；输入不存在目录时，能够正确提示目录不存在。
+
+\insertfigure{figures/t6.png}{目录文件数量统计脚本运行结果}
+
+\subsection{文本文件单词数量统计脚本}
+
+编写 Shell 脚本 \texttt{count\_words.sh}，实现输入文本文件路径并统计文件中单词数量的功能。
+
+\begin{lstlisting}[style=source,language=bash]
+#!/bin/bash
+
+file=$1
+
+if [ -f "$file" ]; then
+    echo "File: $file"
+
+    count=$(wc -w < "$file")
+
+    echo "Word count: $count"
+else
+    echo "File does not exist."
+fi
+\end{lstlisting}
+
+脚本通过 \texttt{\$1} 获取输入文件路径，使用 \texttt{-f} 判断文件是否存在，并利用 \texttt{wc -w} 命令统计文件中的单词数量。
+
+测试结果表明，当输入有效文件时，脚本能够正确输出单词数量；当输入不存在的文件时，能够给出错误提示。
+
+\insertfigure{figures/t7.png}{统计文本文件单词数量脚本运行结果}
+
+
+\FloatBarrier
+
+
+\section{Git 与作业提交}
+
+\subsection{仓库内容整理}
+
+\begin{lstlisting}[style=terminal]
+8.24/
+|-- q01/
+|-- q02/
+|-- q03/
+|-- q04/
+|-- q05/
+|-- q06/
+|-- q07/
+|-- q08/
+|-- q09/
+|-- q10/
+|-- q11/
+|-- q12/
+|-- q13/
+|-- q14
+|-- q15
+|-- q16
+`-- lab_report/
+    |-- figures/
+    |-- report.tex
+    |-- report.pdf
+    |-- report2.tex
+    |-- report2.pdf
+    |-- report3.pdf
+    |-- report3.tex
+    |-- report4.pdf
+    `-- report4.tex
+\end{lstlisting}
+
+\subsection{GitHub / Gitee 提交记录}
+
+\noindent\textbf{仓库地址：}\texttt{https://github.com/haru-senya/8.24.git}
+
+\subsection{commit 记录截图、仓库页面截图}
+\insertfigure{figures/git-commits2.png}{Git commit 记录}
+
+\insertfigure{figures/git-repo2.png}{GitHub / Gitee 仓库页面}
+
+\FloatBarrier
+
+\section{问题与总结}
+
+\subsection{遇到的问题}
+
+\begin {itemize}[leftmargin=2em]
+\item \textbf {命令入口无法识别：}
+第 13 题配置 \texttt {pyproject.toml} 后直接运行 \texttt {sdt-greet --name Alice}，
+出现 \texttt {command not found}。原因是项目虽然配置了脚本入口，
+但当前环境没有安装该项目。通过执行 \texttt {pip install .} 安装项目，
+使系统生成对应命令入口，之后可以正常调用 \texttt {sdt-greet}。
+\item \textbf {修改源码后命令仍执行旧版本：}
+第 16 题从 q13 复制项目到 q16 后，修改了源码中的问候语输出，
+但运行 \texttt {sdt-greet} 仍得到旧结果。原因是之前安装的命令入口仍指向旧项目。
+使用 \texttt {pip install -e .} 进行可编辑安装，使命令入口重新绑定当前源码目录，
+修改后的代码能够及时生效。
+\item \textbf {pytest 无法通过命令执行：}
+第 13、16 题运行检查脚本时出现 \texttt {pytest: command not found}。
+检查发现 Python 环境中已经安装 pytest，但终端无法直接找到对应命令。
+将脚本中的 \texttt {pytest} 修改为 \texttt {python -m pytest}，
+通过 Python 模块方式调用测试工具，提高了环境兼容性。
+\item \textbf {ruff 格式检查失败：}
+第 13 题第一次运行 \texttt {./check.sh} 时，
+ruff 提示部分 Python 文件需要重新格式化。
+使用 \texttt {ruff format} 自动调整代码格式，
+再运行 \texttt {ruff format --check} 验证，
+最终所有文件通过格式检查。
+\item \textbf {Makefile 命令执行逻辑不理解：}
+第 14 题编写 Makefile 时，对 \texttt {make}、目标 (target) 以及依赖关系理解不足。
+通过分析 Makefile 中的规则，例如 \texttt {check} 调用检查脚本，
+\texttt {build} 调用构建命令，
+理解了 Makefile 可以将多个重复操作封装成简单命令，提高项目管理效率。
+\item \textbf {curl 无法连接本地服务：}
+
+\texttt {curl[http://127.0.0.1:8000/packages.json](http://127.0.0.1:8000/packages.json)}
+时提示无法连接服务器。
+检查发现本地 HTTP 服务没有启动。
+使用 \texttt {python -m http.server 8000} 启动服务后，
+curl 能够正常获取 JSON 数据。
+\item \textbf{理解 jq 筛选与排序逻辑困难：}
+第 15 题中需要筛选 active 状态且 downloads 不少于 100 的数据，
+同时按照下载量降序、名称升序排列。
+通过学习 \texttt{.[]} 遍历数组、
+\texttt{select()} 条件过滤以及 \texttt{sort\_by()} 排序，
+理解了命令行工具处理结构化数据的流程。
+\item \textbf{SHA-256 校验作用不理解：}
+第 16 题计算 wheel 文件哈希值时，
+不清楚随机字符串的意义。
+通过了解 SHA-256 后认识到其相当于文件数字指纹，
+可以用于验证发布文件是否被修改，保证软件交付完整性。
+\end{itemize}
+
+
+
+\subsection{实验总结}
+
+本周实验综合实践了软件开发的完整工程流程，涵盖代码修改、自动化测试、项目构建与发布验证。通过人为制造问候语输出错误，体验了测试驱动的问题定位过程，认识到测试不仅能证明程序正确，还能帮助快速发现逻辑错误。
+实验中进一步学习了 Makefile 自动化工具，将检查、构建等重复操作封装为简单命令，提升了项目管理效率；同时通过 wheel 构建和 SHA-256 校验，了解了 Python 项目从源码开发到软件交付的基本流程。
+过程中遇到了 Python 包安装路径、命令入口更新、pytest 环境配置等问题，通过查阅报错、分析运行流程并修改配置，逐渐理清了开发环境、测试工具与构建工具之间的关系。
+经过最后一周实验，对软件工程中 "开发 — 测试 — 修复 — 构建 — 发布" 的完整流程有了更系统的认识，也提升了运用 Git、Python 工具链及自动化脚本解决实际问题的能力。
+
+\end{document}
